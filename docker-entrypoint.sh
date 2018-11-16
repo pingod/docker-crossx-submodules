@@ -1,5 +1,68 @@
 #!/bin/sh
 
+######### Start cript for squid ###########
+set -e
+
+CHOWN=$(/usr/bin/which chown)
+SQUID=$(/usr/bin/which squid)
+
+prepare_folders() {
+	echo "Preparing folders..."
+	mkdir -p /etc/squid-cert/
+	mkdir -p /var/cache/squid/
+	mkdir -p /var/log/squid/
+	"$CHOWN" -R squid:squid /etc/squid-cert/
+	"$CHOWN" -R squid:squid /var/cache/squid/
+	"$CHOWN" -R squid:squid /var/log/squid/
+}
+
+initialize_cache() {
+	echo "Creating cache folder..."
+	"$SQUID" -z
+
+	sleep 5
+}
+
+create_cert() {
+	if [ ! -f /etc/squid-cert/private.pem ]; then
+		echo "Creating certificate..."
+		openssl req -new -newkey rsa:2048 -sha256 -days 3650 -nodes -x509 \
+			-extensions v3_ca -keyout /etc/squid-cert/private.pem \
+			-out /etc/squid-cert/private.pem \
+			-subj "/CN=$CN/O=$O/OU=$OU/C=$C" -utf8 -nameopt multiline,utf8
+
+		openssl x509 -in /etc/squid-cert/private.pem \
+			-outform DER -out /etc/squid-cert/CA.der
+
+		openssl x509 -inform DER -in /etc/squid-cert/CA.der \
+			-out /etc/squid-cert/CA.pem
+	else
+		echo "Certificate found..."
+	fi
+}
+
+clear_certs_db() {
+	echo "Clearing generated certificate db..."
+	rm -rfv /var/lib/ssl_db/
+	/usr/lib/squid/ssl_crtd -c -s /var/lib/ssl_db
+	"$CHOWN" -R squid.squid /var/lib/ssl_db
+}
+
+run() {
+	echo "Starting squid..."
+	prepare_folders
+	create_cert
+	clear_certs_db
+	initialize_cache
+	exec "$SQUID" -NYCd 1 -f /etc/squid/squid.conf
+}
+
+run
+
+############# End script for squid ###########
+
+
+############# Start script for ocserv ########
 if [ ! -f /etc/ocserv/certs/server-key.pem ] || [ ! -f /etc/ocserv/certs/server-cert.pem ]; then
 	# Check environment variables
 	if [ -z "$CA_CN" ]; then
@@ -58,7 +121,26 @@ if [ ! -f /etc/ocserv/certs/server-key.pem ] || [ ! -f /etc/ocserv/certs/server-
 		echo 'heaven:Route,All:$1$fdjc.IJg$mTCHgZHlnvrf54s0At6MX.' > /etc/ocserv/ocpasswd
 	fi
 fi
+########### End Script for ocserv ############
 
+########### Start script for sshd ############
+if [ -z "$ssh_port_out_docker" ]; then
+        ssh_port_out_docker=22
+fi
+
+# Config and start sshd 
+# generate host keys if not present
+ssh-keygen -A
+
+# check wether a random root-password is provided
+if [ ! -z "${ROOT_PASSWORD}" ] && [ "${ROOT_PASSWORD}" != "root" ]; then
+    echo "root:${ROOT_PASSWORD}" | chpasswd
+fi
+
+ /usr/sbin/sshd -D &
+########### End Script for sshd ##############
+
+########### Start script for FRP #############
 if [ -z "$server_addr" ]; then
 	server_addr=0.0.0.0
 fi
@@ -80,13 +162,6 @@ if [ -z "$ip_out_docker" ]; then
         ip_out_docker=127.0.0.1
 fi
 
-if [ -z "$ssh_port_out_docker" ]; then
-        ssh_port_out_docker=22
-fi
-
-
-# Config Frpc and start Frpc
-
 sed -i 's/server_addr = 0.0.0.0/server_addr = '$server_addr'/' /etc/frp/frpc_full.ini
 sed -i 's/server_port = 7000/server_port = '$server_port'/' /etc/frp/frpc_full.ini
 sed -i 's/privilege_token = 12345678/privilege_token = '$privilege_token'/' /etc/frp/frpc_full.ini
@@ -96,18 +171,6 @@ sed -i 's/ip_out_docker/'$ip_out_docker'/' /etc/frp/frpc_full.ini
 sed -i 's/ssh_port_out_docker/'$ssh_port_out_docker'/' /etc/frp/frpc_full.ini
 
 /usr/bin/frpc -c /etc/frp/frpc_full.ini &
-
-
-# Config and start sshd 
-# generate host keys if not present
-ssh-keygen -A
-
-# check wether a random root-password is provided
-if [ ! -z "${ROOT_PASSWORD}" ] && [ "${ROOT_PASSWORD}" != "root" ]; then
-    echo "root:${ROOT_PASSWORD}" | chpasswd
-fi
-
- /usr/sbin/sshd -D &
 
 # Open ipv4 ip forward
 sysctl -w net.ipv4.ip_forward=1
@@ -123,3 +186,5 @@ chmod 600 /dev/net/tun
 
 # Run OpennConnect Server
 exec "$@"
+
+################ End script for ocserv ##############

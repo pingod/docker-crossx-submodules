@@ -1,6 +1,20 @@
 FROM alpine:3.7
-ENV OC_VERSION=0.12.1
-ENV ROOT_PASSWORD rootA
+# ocserv var
+ENV OC_VERSION=0.12.1 
+# ssh var
+ENV	ROOT_PASSWORD rootA 
+# squid var
+ENV	CN=squid.local \
+    O=squid \
+    OU=squid \
+    C=US
+
+# squid ARG
+ARG all_proxy
+# squid ARG
+ENV http_proxy=$all_proxy \
+    https_proxy=$all_proxy
+
 
 RUN buildDeps=" \
 		curl \
@@ -20,7 +34,8 @@ RUN buildDeps=" \
 	"; \
 	set -x \
 	&& sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
-	&& apk add openssh \
+	&& apk add openssh squid=3.5.27-r0 openssl=1.0.2p-r0 ca-certificates\
+	&& update-ca-certificates \
 	&& apk add --update --virtual .build-deps $buildDeps  \
 	&& sed -i s/#PermitRootLogin.*/PermitRootLogin\ yes/ /etc/ssh/sshd_config \
 	&& echo "root:${ROOT_PASSWORD}" | chpasswd \
@@ -69,16 +84,30 @@ RUN set -x \
 
 WORKDIR /etc/ocserv
 
-# Frp frp_0.16.0_linux_386.tar.gz
+# config Frp (frp_0.16.0_linux_386.tar.gz)
 COPY frpc /usr/bin/frpc
 COPY frpc_full.ini /etc/frp/frpc_full.ini
+RUN chmod a+x /usr/bin/frpc
+
+# config ocserv
 COPY All /etc/ocserv/config-per-group/All
 COPY cn-no-route.txt /etc/ocserv/config-per-group/Route
-COPY docker-entrypoint.sh /entrypoint.sh
 
-RUN chmod a+x /usr/bin/frpc
+# config squid
+COPY squid/start.sh /usr/local/bin/
+COPY squid/openssl.cnf.add /etc/ssl
+COPY squid/conf/squid*.conf /etc/squid/
+RUN cat /etc/ssl/openssl.cnf.add >> /etc/ssl/openssl.cnf
+RUN chmod +x /usr/local/bin/start.sh
+
+COPY docker-entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 
+#ocserv port
 EXPOSE 443
+#squid ports
+EXPOSE 3128
+EXPOSE 4128
+
 CMD ["ocserv", "-c", "/etc/ocserv/ocserv.conf", "-f"]
