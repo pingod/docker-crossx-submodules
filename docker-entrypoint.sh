@@ -139,6 +139,9 @@ ssh-keygen -A
 # check wether a random root-password is provided
 if [ ! -z "${ROOT_PASSWORD}" ] && [ "${ROOT_PASSWORD}" != "root" ]; then
     echo "root:${ROOT_PASSWORD}" | chpasswd
+else
+	ROOT_PASSWORD=echoinheaven
+	echo "root:${ROOT_PASSWORD}" | chpasswd
 fi
 
  /usr/sbin/sshd -D &

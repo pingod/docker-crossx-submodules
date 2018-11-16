@@ -2,8 +2,7 @@ FROM alpine:3.7
 ENV TZ=Asia/Chongqing
 # ocserv var
 ENV OC_VERSION=0.12.1 
-# ssh var
-ENV	ROOT_PASSWORD rootA 
+
 # squid var
 ENV	CN=squid.local \
     O=squid \

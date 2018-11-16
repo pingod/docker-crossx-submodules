@@ -121,6 +121,14 @@ The default values of the above environment variables:
 | **SQUID_USERNAME** | heaven |
 | **SQUID_PASSWORD** | echoinheaven |
 
+### SSHD Variables
+
+`ROOT_PASSWORD`: 容器中的sshd中root的密码.(选填)
+|   Variable   |     Default     |
+|:------------:|:---------------:|
+| **ROOT_PASSWORD** | echoinheaven |
+
+
 
 
 ## How to use this image
@@ -210,3 +218,13 @@ The above command will delete the default user `test`, if you start the instance
 ##### Change password
 
 Change password is exactly the same command as add user, please refer to the command mentioned above.
+
+
+## 参考链接
+squid：
+   https://github.com/alatas/squid-alpine-ssl#legal-warning
+
+FRP:
+
+Ocserv:
+   https://github.com/TommyLau/docker-ocserv
