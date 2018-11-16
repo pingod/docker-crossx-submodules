@@ -124,6 +124,7 @@ The default values of the above environment variables:
 ### SSHD Variables
 
 `ROOT_PASSWORD`: 容器中的sshd中root的密码.(选填)
+
 |   Variable   |     Default     |
 |:------------:|:---------------:|
 | **ROOT_PASSWORD** | echoinheaven |
