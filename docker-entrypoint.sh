@@ -1,7 +1,15 @@
 #!/bin/sh
 
 ######### Start cript for squid ###########
-set -e
+#set -e
+
+if [ -z "$SQUID_USERNAME" ]; then
+	SQUID_USERNAME="heaven"
+fi
+
+if [ -z "$SQUID_PASSWORD" ]; then
+	SQUID_PASSWORD="echoinheaven"
+fi
 
 CHOWN=$(/usr/bin/which chown)
 SQUID=$(/usr/bin/which squid)
@@ -19,7 +27,6 @@ prepare_folders() {
 initialize_cache() {
 	echo "Creating cache folder..."
 	"$SQUID" -z
-
 	sleep 5
 }
 
@@ -48,16 +55,16 @@ clear_certs_db() {
 	"$CHOWN" -R squid.squid /var/lib/ssl_db
 }
 
-run() {
+run_squid() {
 	echo "Starting squid..."
 	prepare_folders
 	create_cert
 	clear_certs_db
 	initialize_cache
-	exec "$SQUID" -NYCd 1 -f /etc/squid/squid.conf
+	htpasswd -bc /etc/squid/password  $SQUID_USERNAME $SQUID_PASSWORD
+	nohup "$SQUID" -NYCd 1 -f /etc/squid/squid.conf &
 }
-
-run
+run_squid
 
 ############# End script for squid ###########
 
@@ -124,9 +131,6 @@ fi
 ########### End Script for ocserv ############
 
 ########### Start script for sshd ############
-if [ -z "$ssh_port_out_docker" ]; then
-        ssh_port_out_docker=22
-fi
 
 # Config and start sshd 
 # generate host keys if not present
@@ -148,18 +152,22 @@ if [ -z "$server_port" ]; then
 	server_port=7000
 fi
 if [ -z "$privilege_token" ]; then
-	privilege_token=12345678
+	privilege_token=405520
 fi
 if [ -z "$login_fail_exit" ]; then
 	login_fail_exit=true
 fi
 
 if [ -z "$hostname_in_docker" ]; then
-        hostname_in_docker=hostname_in_docker
+    hostname_in_docker=hostname_in_docker
 fi
 
 if [ -z "$ip_out_docker" ]; then
-        ip_out_docker=127.0.0.1
+    ip_out_docker=127.0.0.1
+fi
+
+if [ -z "$ssh_port_out_docker" ]; then
+        ssh_port_out_docker=22
 fi
 
 sed -i 's/server_addr = 0.0.0.0/server_addr = '$server_addr'/' /etc/frp/frpc_full.ini
@@ -183,8 +191,8 @@ iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 mkdir -p /dev/net
 mknod /dev/net/tun c 10 200
 chmod 600 /dev/net/tun
-
-# Run OpennConnect Server
-exec "$@"
-
+#ocserv -c /etc/ocserv/ocserv.conf -f
 ################ End script for ocserv ##############
+
+# Run script
+exec "$@"
