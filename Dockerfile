@@ -35,6 +35,7 @@ RUN buildDeps=" \
 	&& update-ca-certificates \
 	&& apk add --update --virtual .build-deps $buildDeps  \
 	&& sed -i s/#PermitRootLogin.*/PermitRootLogin\ yes/ /etc/ssh/sshd_config \
+	&& apk del .build-deps \
 	&& echo "root:${ROOT_PASSWORD}" | chpasswd \
 	&& rm -rf /var/cache/apk/*
 
