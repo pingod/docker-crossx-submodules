@@ -1,5 +1,7 @@
 
-# 由于wireguard 需要运行在比较新的内核上，因此暂停此分支
+**由于wireguard 需要运行在比较新的内核上，因此此分支暂时没有将wireguard添加进去**
+
+**除了wireguard，其余程序可以正常使用**
 
 # wfss（分支）
 
@@ -194,20 +196,20 @@ The default values of the above environment variables:
 
 ### Quick Start
 
-Ocserv 默认密码为heaven/echoinheaven
-
 SSH 默认密码为root/echoinheaven
 
 Squid 默认密码为heaven/echoinheaven
 
-
 ```bash
-docker run --name ocserv --privileged  \
--e "server_addr=123.57.3.xx" \
--e "hostname_in_docker=test01-local"  \
--e "ip_out_docker=192.168.1.190" \
+docker run --name ocserv --privileged \
+-e "server_addr=bbs.it.com" \
+-e "privilege_token=405" \
+-e "hostname_in_docker=test-tenxun-57" \
+-e "ip_out_docker=118.25.xx.xx" \
+-e "ssh_port_out_docker=22" \
+-e "TZ=Asia/Chongqing" \
 --restart=always -d \
-registry.cn-hangzhou.aliyuncs.com/sourcegarden/docker-ocserv-ofss:v1.0
+registry.cn-hangzhou.aliyuncs.com/sourcegarden/docker-ocserv-wfss:v0.1
 
 ```
 
