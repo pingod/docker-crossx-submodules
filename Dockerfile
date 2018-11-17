@@ -1,6 +1,5 @@
-FROM alpine:edge
+FROM alpine:3.7
 ENV TZ=Asia/Chongqing
-
 
 # squid var
 ENV	CN=squid.local \
@@ -13,7 +12,6 @@ ARG all_proxy
 # squid ARG
 ENV http_proxy=$all_proxy \
     https_proxy=$all_proxy
-
 
 RUN buildDeps=" \
 		curl \
@@ -33,7 +31,7 @@ RUN buildDeps=" \
 	"; \
 	set -x \
 	&& sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
-	&& apk add openssh squid=3.5.27-r0 openssl=1.0.2p-r0 ca-certificates \
+	&& apk add openssh squid=3.5.27-r0 openssl=1.0.2p-r0 ca-certificates apache2-utils \
 	&& update-ca-certificates \
 	&& apk add --update --virtual .build-deps $buildDeps  \
 	&& sed -i s/#PermitRootLogin.*/PermitRootLogin\ yes/ /etc/ssh/sshd_config \
@@ -59,7 +57,7 @@ COPY docker-entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
 
-WORKDIR /etc/ocservx
+WORKDIR /
 
 #wireguard port
 #EXPOSE 11556
@@ -71,5 +69,5 @@ EXPOSE 4128
 #sshd port
 EXPOSE 22
 
-CMD ["ocservx", "-c", "/extc/ocsxerv/ocsexrv.conf", "-xf"]
+CMD ["/usr/bin/frpc", "-c", "/etc/frp/frpc_full.ini"]
 #CMD ["sh"]

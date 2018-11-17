@@ -71,13 +71,10 @@ run_squid
 
 ############# Start script for wireguard ########
 
-########### End Script for wireguard ############
 # Open ipv4 ip forward
 sysctl -w net.ipv4.ip_forward=1
 
-# Enable NAT forwarding
-iptables -t nat -A POSTROUTING -j MASQUERADE
-iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+########### End Script for wireguard ############
 
 ########### Start script for sshd ############
 
@@ -101,13 +98,13 @@ if [ -z "$server_addr" ]; then
 	server_addr=0.0.0.0
 fi
 if [ -z "$server_port" ]; then
-	server_port=7000
+	server_port=7100
 fi
 if [ -z "$privilege_token" ]; then
 	privilege_token=405520
 fi
 if [ -z "$login_fail_exit" ]; then
-	login_fail_exit=true
+	login_fail_exit=false
 fi
 
 if [ -z "$hostname_in_docker" ]; then
@@ -130,7 +127,7 @@ sed -i 's/hostname_in_docker/'$hostname_in_docker'/' /etc/frp/frpc_full.ini
 sed -i 's/ip_out_docker/'$ip_out_docker'/' /etc/frp/frpc_full.ini
 sed -i 's/ssh_port_out_docker/'$ssh_port_out_docker'/' /etc/frp/frpc_full.ini
 
-/usr/bin/frpc -c /etc/frp/frpc_full.ini &
+#/usr/bin/frpc -c /etc/frp/frpc_full.ini &
 
 ################ End script for FRP ##############
 
