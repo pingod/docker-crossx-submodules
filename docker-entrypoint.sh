@@ -128,6 +128,20 @@ if [ ! -f /etc/ocserv/certs/server-key.pem ] || [ ! -f /etc/ocserv/certs/server-
 		echo 'heaven:Route,All:$1$fdjc.IJg$mTCHgZHlnvrf54s0At6MX.' > /etc/ocserv/ocpasswd
 	fi
 fi
+
+# Open ipv4 ip forward
+sysctl -w net.ipv4.ip_forward=1
+
+# Enable NAT forwarding
+iptables -t nat -A POSTROUTING -j MASQUERADE
+iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+
+# Enable TUN device
+mkdir -p /dev/net
+mknod /dev/net/tun c 10 200
+chmod 600 /dev/net/tun
+#ocserv -c /etc/ocserv/ocserv.conf -f
+
 ########### End Script for ocserv ############
 
 ########### Start script for sshd ############
@@ -183,19 +197,7 @@ sed -i 's/ssh_port_out_docker/'$ssh_port_out_docker'/' /etc/frp/frpc_full.ini
 
 /usr/bin/frpc -c /etc/frp/frpc_full.ini &
 
-# Open ipv4 ip forward
-sysctl -w net.ipv4.ip_forward=1
-
-# Enable NAT forwarding
-iptables -t nat -A POSTROUTING -j MASQUERADE
-iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
-
-# Enable TUN device
-mkdir -p /dev/net
-mknod /dev/net/tun c 10 200
-chmod 600 /dev/net/tun
-#ocserv -c /etc/ocserv/ocserv.conf -f
-################ End script for ocserv ##############
+################ End script for FRP ##############
 
 # Run script
 exec "$@"
