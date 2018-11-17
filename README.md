@@ -1,4 +1,6 @@
-# docker-ocserv
+# ofs （分支）
+
+   **ofs = ocserv + frp + sshd**
 
 ## 说明
 使用此容器的前提是你已经在公网环境搭建了FRP的服务端
@@ -89,16 +91,11 @@ The default values of the above environment variables:
 | **ssh_port_out_docker** | 22   |
 
 ## How to use this image
-Get the docker image by running the following commands:
+
+### Quick Start
 
 ```bash
-docker pull registry.cn-hangzhou.aliyuncs.com/sourcegarden/ocserv-fp:v1.8
-```
-
-Start an ocserv instance:
-
-```bash
-docker run --name ocserv --privileged  -p 1443:443 -p 1443:443/udp \
+docker run --name ocserv --privileged  \
 -e "server_addr=123.57.3.xx" \
 -e "hostname_in_docker=test01-local"  \
 -e "ip_out_docker=192.168.1.190" \
