@@ -1,8 +1,12 @@
+
+# 由于wireguard 需要运行在比较新的内核上，因此暂停此分支
+
 # wfss（分支）
 
    **wfss = wireguard + frp(latest) + sshd + squid**
 
 ## 说明
+
   此容器用途：
 
     通过公网环境访问企业内部服务

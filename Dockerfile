@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:edge
 ENV TZ=Asia/Chongqing
 
 
@@ -62,10 +62,12 @@ ENTRYPOINT ["/entrypoint.sh"]
 WORKDIR /etc/ocservx
 
 #wireguard port
-EXPOSE xx
+#EXPOSE 11556
+
 #squid ports
 EXPOSE 3128
 EXPOSE 4128
+
 #sshd port
 EXPOSE 22
 
