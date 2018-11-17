@@ -1,15 +1,25 @@
 # docker-ocserv
 
 ## 说明
-使用此容器的前提是你已经在公网环境搭建了FRP的服务端
- 此容器用途：
+  此容器用途：
     通过公网环境访问企业内部服务
 
- 此容器包含：  
+  此容器包含：  
     OpenConnect VPN Server(ocserv)： ocserv vpn server
+
     FRP： FRP 内网穿透客户端
+
     SSHD： 容器内部sshd服务，主要用来避免企业内部操作审计
+
     Squid： 透明代理
+
+  使用此容器注意事项：
+
+   使用此容器的前提是你已经在公网环境搭建了FRP的服务端
+
+   容器运行后需要去frp的server端获取服务端暴露出来的端口，或者在客户端使用frpc status -c xx.conf 查看暴露的端口
+
+   
 
 ### What is OpenConnect Server?
 [OpenConnect server (ocserv)](http://www.infradead.org/ocserv/) is an SSL VPN server. It implements the OpenConnect SSL VPN protocol, and has also (currently experimental) compatibility with clients using the [AnyConnect SSL VPN](http://www.cisco.com/c/en/us/support/security/anyconnect-vpn-client/tsd-products-support-series-home.html) protocol.
@@ -36,6 +46,16 @@ sshd命令是openssh软件套件中的服务器守护进程
 Update to version 0.12.1 and use Alpine 3.7 as base image
 Add Frpc-0.16.0 and config to base image
 
+
+## 容器内服务端口表
+|   Port   |     description     |
+|:------------:|:---------------:|
+|  **22**   |      sshd     |
+|  **443**   |      ocserv/tcp    |
+|  **443**   |      ocserv/udp    |
+|  **3128**   |      squid/proxy port     |
+|  **4128**   |      squid/ssl_dump     |
+|  **7000**   |      frp_client     |
 
 ## Environment Variables
 
@@ -130,28 +150,59 @@ The default values of the above environment variables:
 | **ROOT_PASSWORD** | echoinheaven |
 
 
+## Settings and Path
+
+### FRP
+/etc/frp/frpc_full.ini   frp client配置文件
+
+/usr/bin/frpc frp client的执行二进制文件
+
+### Squid
+
+/etc/squid/ squid 配置文件路径
+
+   /etc/squid/password squid用户密码
+
+   /etc/squid/squid.conf  squid配置文件
+
+/etc/squid-cert/  squid 证书路径
+
+/var/cache/squid/ squid 缓存路径
+
+/var/log/squid/  squid 日志路径
+
+### Ocserv
+/etc/ocserv/certs/   ocserv 证书路径
+
+/etc/ocserv/ ocserv配置文件路径
+
+   /etc/ocserv/ocpasswd   ocserv用户密码文件
+
+   /etc/ocserv/ocserv.conf  ocserv配置文件
+
 
 
 ## How to use this image
-Get the docker image by running the following commands:
+
+### Quick Start
+
+Ocserv 默认密码为heaven/echoinheaven
+
+SSH 默认密码为root/echoinheaven
+
+Squid 默认密码为heaven/echoinheaven
+
 
 ```bash
-docker pull registry.cn-hangzhou.aliyuncs.com/sourcegarden/docker-ocserv-ofss
-```
-
-Start an ocserv instance:
-
-```bash
-docker run --name ocserv --privileged  -p 1443:443 -p 1443:443/udp \
+docker run --name ocserv --privileged  \
 -e "server_addr=123.57.3.xx" \
 -e "hostname_in_docker=test01-local"  \
 -e "ip_out_docker=192.168.1.190" \
 --restart=always -d \
-registry.cn-hangzhou.aliyuncs.com/sourcegarden/docker-ocserv-ofss
+registry.cn-hangzhou.aliyuncs.com/sourcegarden/docker-ocserv-ofss:v1.0
 
 ```
 
-This will start an instance with the a test user named `heaven` and password is also `echoinheaven`.
 
 
 ### Examples for ocserv
