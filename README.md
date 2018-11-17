@@ -2,7 +2,7 @@
 
 ## 说明
   此容器用途：
-  
+
     通过公网环境访问企业内部服务
 
   此容器包含：
@@ -17,39 +17,50 @@
 
   使用此容器注意事项：
 
-   使用此容器的前提是你已经在公网环境搭建了FRP的服务端
+    使用此容器的前提是你已经在公网环境搭建了FRP的服务端
 
-   容器运行后需要去frp的server端获取服务端暴露出来的端口，或者在客户端使用frpc status -c xx.conf 查看暴露的端口
+    容器运行后需要去frp的server端获取服务端暴露出来的端口，或者在客户端使用frpc status -c xx.conf 查看暴露的端口
 
    
 
 ### What is OpenConnect Server?
+
 [OpenConnect server (ocserv)](http://www.infradead.org/ocserv/) is an SSL VPN server. It implements the OpenConnect SSL VPN protocol, and has also (currently experimental) compatibility with clients using the [AnyConnect SSL VPN](http://www.cisco.com/c/en/us/support/security/anyconnect-vpn-client/tsd-products-support-series-home.html) protocol.
 
 ### What is FRP
+
 [FRP](https://github.com/fatedier/frp/blob/master/README_zh.md)是一个可用于内网穿透的高性能的反向代理应用，支持 tcp, udp, http, https 协议。
 
 ### What is SSHD
+
 sshd命令是openssh软件套件中的服务器守护进程
 
 ### What is Squid
+
 [Squid](http://www.squid-cache.org/) is a caching proxy for the Web supporting HTTP, HTTPS, FTP, and more.
 
 ## 更新情况
+
 ### Update on 2018/11/16
+
 添加squid，并启用密码
+
 调整整体目录结构，独立每个程序为单独一个目录
 
 ### Update on 2018/11/03
+
 添加docker中的sshd服务,并且开启反向代理(sshd + frpc)
+
 添加对于宿主机的ssh端口的反向代理(frpc)
 
 ### Update on 2018/11/02
 Update to version 0.12.1 and use Alpine 3.7 as base image
+
 Add Frpc-0.16.0 and config to base image
 
 
 ## 容器内服务端口表
+
 |   Port   |     description     |
 |:------------:|:---------------:|
 |  **22**   |      sshd     |
@@ -155,6 +166,7 @@ The default values of the above environment variables:
 ## Settings and Path
 
 ### FRP
+
 /etc/frp/frpc_full.ini   frp client配置文件
 
 /usr/bin/frpc frp client的执行二进制文件
@@ -174,6 +186,7 @@ The default values of the above environment variables:
 /var/log/squid/  squid 日志路径
 
 ### Ocserv
+
 /etc/ocserv/certs/   ocserv 证书路径
 
 /etc/ocserv/ ocserv配置文件路径
@@ -208,7 +221,9 @@ registry.cn-hangzhou.aliyuncs.com/sourcegarden/docker-ocserv-ofss:v1.0
 
 
 ### Examples for ocserv
+
 **下面将单从ocserv服务讲解如何使用该镜像**
+
 Start an instance out of the box with username `heaven` and password `echoinheaven`
 
 ```bash
