@@ -1,6 +1,6 @@
-# ofss（分支）
+# wfss（分支）
 
-   **ofss = ocserv + frp + sshd + squid**
+   **wfss = wireguard + frp(latest) + sshd + squid**
 
 ## 说明
   此容器用途：
@@ -9,7 +9,7 @@
 
   此容器包含：
 
-    OpenConnect VPN Server(ocserv)： ocserv vpn server
+    wireguard： wireguard vpn server
 
     FRP： FRP 内网穿透客户端
 
@@ -25,9 +25,9 @@
 
    
 
-### What is OpenConnect Server?
+### What is wireguard VPN Server?
 
-[OpenConnect server (ocserv)](http://www.infradead.org/ocserv/) is an SSL VPN server. It implements the OpenConnect SSL VPN protocol, and has also (currently experimental) compatibility with clients using the [AnyConnect SSL VPN](http://www.cisco.com/c/en/us/support/security/anyconnect-vpn-client/tsd-products-support-series-home.html) protocol.
+[wireguard](https://www.wireguard.com/) WireGuard® is an extremely simple yet fast and modern VPN that utilizes state-of-the-art cryptography. It aims to be faster, simpler, leaner, and more useful than IPSec, while avoiding the massive headache. It intends to be considerably more performant than OpenVPN. WireGuard is designed as a general purpose VPN for running on embedded interfaces and super computers alike, fit for many different circumstances. Initially released for the Linux kernel, it is now cross-platform and widely deployable. It is currently under heavy development, but already it might be regarded as the most secure, easiest to use, and simplest VPN solution in the industry.
 
 ### What is FRP
 
@@ -43,22 +43,9 @@ sshd命令是openssh软件套件中的服务器守护进程
 
 ## 更新情况
 
-### Update on 2018/11/16
+### Update on 2018/11/17
 
-添加squid，并启用密码
-
-调整整体目录结构，独立每个程序为单独一个目录
-
-### Update on 2018/11/03
-
-添加docker中的sshd服务,并且开启反向代理(sshd + frpc)
-
-添加对于宿主机的ssh端口的反向代理(frpc)
-
-### Update on 2018/11/02
-Update to version 0.12.1 and use Alpine 3.7 as base image
-
-Add Frpc-0.16.0 and config to base image
+启用此分支
 
 
 ## 容器内服务端口表
@@ -70,7 +57,7 @@ Add Frpc-0.16.0 and config to base image
 |  **443**   |      ocserv/udp    |
 |  **3128**   |      squid/proxy port     |
 |  **4128**   |      squid/ssl_dump     |
-|  **7000**   |      frp_client     |
+|  **7100**   |      frp_client     |
 
 ## Environment Variables
 
