@@ -1,5 +1,7 @@
 # docker-ocserv
 
+   **ofss = ocserv + frp + sshd + squid**
+
 ## 说明
   此容器用途：
 
@@ -294,6 +296,7 @@ squid：
    https://github.com/alatas/squid-alpine-ssl#legal-warning
 
 FRP:
+   https://github.com/fatedier/frp
 
 Ocserv:
    https://github.com/TommyLau/docker-ocserv
