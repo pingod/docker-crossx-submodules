@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ######### Start cript for squid ###########
-
+run_squid(){
 if [ -z "$SQUID_USERNAME" ]; then
 	SQUID_USERNAME="heaven"
 fi
@@ -54,7 +54,7 @@ clear_certs_db() {
 	"$CHOWN" -R squid.squid /var/lib/ssl_db
 }
 
-run_squid() {
+init_squid() {
 	echo "Starting squid..."
 	prepare_folders
 	create_cert
@@ -63,12 +63,13 @@ run_squid() {
 	htpasswd -bc /etc/squid/password  $SQUID_USERNAME $SQUID_PASSWORD
 	nohup "$SQUID" -NYCd 1 -f /etc/squid/squid.conf &
 }
-run_squid
-
+init_squid
+}
 ############# End script for squid ###########
 
 
 ############# Start script for ocserv ########
+run_ocserv(){
 if [ ! -f /etc/ocserv/certs/server-key.pem ] || [ ! -f /etc/ocserv/certs/server-cert.pem ]; then
 	# Check environment variables
 	if [ -z "$CA_CN" ]; then
@@ -139,12 +140,12 @@ iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 mkdir -p /dev/net
 mknod /dev/net/tun c 10 200
 chmod 600 /dev/net/tun
-#ocserv -c /etc/ocserv/ocserv.conf -f &
-
+ocserv -c /etc/ocserv/ocserv.conf -f &
+}
 ########### End Script for ocserv ############
 
 ########### Start script for sshd ############
-
+run_sshd(){
 # Config and start sshd 
 # generate host keys if not present
 ssh-keygen -A
@@ -158,9 +159,11 @@ else
 fi
 
  /usr/sbin/sshd -D &
+}
 ########### End Script for sshd ##############
 
 ########### Start script for FRP #############
+run_frpc(){
 if [ -z "$server_addr" ]; then
 	server_addr=0.0.0.0
 fi
@@ -183,7 +186,7 @@ if [ -z "$ip_out_docker" ]; then
 fi
 
 if [ -z "$ssh_port_out_docker" ]; then
-        ssh_port_out_docker=22
+    ssh_port_out_docker=22
 fi
 
 sed -i 's/server_addr = 0.0.0.0/server_addr = '$server_addr'/' /etc/frp/frpc_full.ini
@@ -194,9 +197,14 @@ sed -i 's/hostname_in_docker/'$hostname_in_docker'/' /etc/frp/frpc_full.ini
 sed -i 's/ip_out_docker/'$ip_out_docker'/' /etc/frp/frpc_full.ini
 sed -i 's/ssh_port_out_docker/'$ssh_port_out_docker'/' /etc/frp/frpc_full.ini
 
-/usr/bin/frpc -c /etc/frp/frpc_full.ini &
-
+/usr/bin/frpc -c /etc/frp/frpc_full.ini 
+}
 ################ End script for FRP ##############
 
-# Run script
-exec "$@"
+run_squid
+run_ocserv
+run_sshd
+run_frpc
+
+
+tail -f /var/log/squid/access.log

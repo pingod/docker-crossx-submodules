@@ -103,7 +103,6 @@ RUN chmod +x /usr/local/bin/start.sh
 COPY docker-entrypoint.sh /entrypoint.sh
 
 WORKDIR /etc/ocserv
-ENTRYPOINT ["/entrypoint.sh"]
 
 #ocserv port
 EXPOSE 443
@@ -113,5 +112,4 @@ EXPOSE 4128
 #sshd port
 EXPOSE 22
 
-CMD ["ocserv", "-c", "/etc/ocserv/ocserv.conf", "-f"]
-#CMD ["sh"]
+CMD ["sh", "-c", "/entrypoint.sh"]
