@@ -1,7 +1,6 @@
 #!/bin/sh
 
 ######### Start cript for squid ###########
-#set -e
 
 if [ -z "$SQUID_USERNAME" ]; then
 	SQUID_USERNAME="heaven"
@@ -140,7 +139,7 @@ iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 mkdir -p /dev/net
 mknod /dev/net/tun c 10 200
 chmod 600 /dev/net/tun
-#ocserv -c /etc/ocserv/ocserv.conf -f
+#ocserv -c /etc/ocserv/ocserv.conf -f &
 
 ########### End Script for ocserv ############
 
