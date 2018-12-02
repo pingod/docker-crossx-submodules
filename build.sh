@@ -5,7 +5,7 @@ NAME=docker-ocserv-ofss
 FULLNAME=registry.cn-hangzhou.aliyuncs.com/${NAMESPACE}/${NAME}
 #FULLNAME=$(NAMESPACE)/$(NAME)
 DOCKERFILE=Dockerfile
-VERSION=$3
+VERSION=$2
 
 
 all(){

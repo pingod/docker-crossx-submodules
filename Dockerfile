@@ -1,4 +1,4 @@
-FROM alpine:3.7
+FROM alpine:3.8
 ENV TZ=Asia/Chongqing
 # ocserv var
 ENV OC_VERSION=0.12.1 
@@ -34,7 +34,7 @@ RUN buildDeps=" \
 	"; \
 	set -x \
 	&& sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
-	&& apk add openssh squid=3.5.27-r0 openssl ca-certificates apache2-utils\
+	&& apk add openssh squid openssl ca-certificates apache2-utils\
 	&& update-ca-certificates \
 	&& apk add --update --virtual .build-deps $buildDeps  \
 	&& sed -i s/#PermitRootLogin.*/PermitRootLogin\ yes/ /etc/ssh/sshd_config \
