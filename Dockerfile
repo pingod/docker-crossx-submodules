@@ -3,12 +3,6 @@ ENV TZ=Asia/Chongqing
 # ocserv var
 ENV OC_VERSION=0.12.1 
 
-# squid var
-ENV	CN=squid.local \
-    O=squid \
-    OU=squid \
-    C=US
-
 # squid ARG
 ARG all_proxy
 # squid ARG

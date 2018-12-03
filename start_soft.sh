@@ -1,8 +1,26 @@
 #!/bin/sh
 
+source /etc/profile
 
 ######### Start cript for squid ###########
 run_squid(){
+
+if [ -z "$CN" ]; then
+	CN="squid.local"
+fi
+
+if [ -z "$O" ]; then
+	O="squid"
+fi
+
+if [ -z "$OU" ]; then
+	OU="squid"
+fi
+
+if [ -z "$C" ]; then
+	C="US"
+fi
+
 if [ -z "$SQUID_USERNAME" ]; then
 	SQUID_USERNAME="heaven"
 fi
