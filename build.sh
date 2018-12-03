@@ -68,9 +68,7 @@ save(){
 
 run(){
 	echo "Docker IPAddress is:" 
-	docker inspect --format '{{.NetworkSettings.IPAddress}}' `docker run -d -p 8080:8080 -p 8009:8009 -v $(pwd)/opt/tomcat/webapps:/opt/tomcat/webapps ${FULLNAME}:${VERSION}`
-	echo "Ports 8080 8009 is out "
-	echo "/opt/tomcat/webapps is out"
+	docker inspect --format '{{.NetworkSettings.IPAddress}}' `docker run --name ofss --privileged  -e "server_addr=bbs.itaojin.me" -e "hostname_in_docker=local-mac-test"  -e "ip_out_docker=192.168.199.138" --restart=always -d ${FULLNAME}:${VERSION}`
 }
 
 usage(){

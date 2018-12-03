@@ -34,18 +34,12 @@ RUN buildDeps=" \
 	"; \
 	set -x \
 	&& sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
-	&& apk add openssh squid openssl ca-certificates apache2-utils\
+	&& apk add openssh squid openssl ca-certificates apache2-utils bash sudo curl wget procps htop\
 	&& update-ca-certificates \
 	&& apk add --update --virtual .build-deps $buildDeps  \
-	&& sed -i s/#PermitRootLogin.*/PermitRootLogin\ yes/ /etc/ssh/sshd_config \
-	&& echo "root:${ROOT_PASSWORD}" | chpasswd \
 #	&& wget --no-check-certificate -O ocserv.tar.xz \
 #	--header="authorization":"Basic c"  https://www.a.com/share/public/soft/ocserv-0.12.1.tar.xz \
 	&& curl -SL "ftp://ftp.infradead.org/pub/ocserv/ocserv-$OC_VERSION.tar.xz" -o ocserv.tar.xz \
-#	&& curl -SL "ftp://ftp.infradead.org/pub/ocserv/ocserv-$OC_VERSION.tar.xz.sig" -o ocserv.tar.xz.sig \
-#	&& gpg --keyserver pgp.mit.edu --recv-key 7F343FA7 \
-#	&& gpg --keyserver pgp.mit.edu --recv-key 96865171 \
-#	&& gpg --verify ocserv.tar.xz.sig \
 	&& mkdir -p /usr/src/ocserv \
 	&& tar -xf ocserv.tar.xz -C /usr/src/ocserv --strip-components=1 \
 	&& rm ocserv.tar.xz* \
@@ -100,7 +94,7 @@ COPY squid/conf/squid*.conf /etc/squid/
 RUN cat /etc/ssl/openssl.cnf.add >> /etc/ssl/openssl.cnf
 RUN chmod +x /usr/local/bin/start.sh
 
-COPY docker-entrypoint.sh /entrypoint.sh
+COPY start_soft.sh /start_soft.sh
 
 WORKDIR /etc/ocserv
 
@@ -112,4 +106,4 @@ EXPOSE 4128
 #sshd port
 EXPOSE 22
 
-CMD ["sh", "-c", "/entrypoint.sh"]
+CMD ["sh", "-x", "/start_soft.sh"]

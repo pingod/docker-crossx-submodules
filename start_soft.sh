@@ -1,5 +1,6 @@
 #!/bin/sh
 
+
 ######### Start cript for squid ###########
 run_squid(){
 if [ -z "$SQUID_USERNAME" ]; then
@@ -15,32 +16,32 @@ SQUID=$(/usr/bin/which squid)
 
 prepare_folders() {
 	echo "Preparing folders..."
-	mkdir -p /etc/squid-cert/
-	mkdir -p /var/cache/squid/
-	mkdir -p /var/log/squid/
-	"$CHOWN" -R squid:squid /etc/squid-cert/
-	"$CHOWN" -R squid:squid /var/cache/squid/
-	"$CHOWN" -R squid:squid /var/log/squid/
+	sudo mkdir -p /etc/squid-cert/
+	sudo mkdir -p /var/cache/squid/
+	sudo mkdir -p /var/log/squid/
+	sudo "$CHOWN" -R squid:squid /etc/squid-cert/
+	sudo "$CHOWN" -R squid:squid /var/cache/squid/
+	sudo "$CHOWN" -R squid:squid /var/log/squid/
 }
 
 initialize_cache() {
 	echo "Creating cache folder..."
-	"$SQUID" -z
+	sudo "$SQUID" -z
 	sleep 5
 }
 
 create_cert() {
 	if [ ! -f /etc/squid-cert/private.pem ]; then
 		echo "Creating certificate..."
-		openssl req -new -newkey rsa:2048 -sha256 -days 3650 -nodes -x509 \
+		sudo openssl req -new -newkey rsa:2048 -sha256 -days 3650 -nodes -x509 \
 			-extensions v3_ca -keyout /etc/squid-cert/private.pem \
 			-out /etc/squid-cert/private.pem \
 			-subj "/CN=$CN/O=$O/OU=$OU/C=$C" -utf8 -nameopt multiline,utf8
 
-		openssl x509 -in /etc/squid-cert/private.pem \
+		sudo openssl x509 -in /etc/squid-cert/private.pem \
 			-outform DER -out /etc/squid-cert/CA.der
 
-		openssl x509 -inform DER -in /etc/squid-cert/CA.der \
+		sudo openssl x509 -inform DER -in /etc/squid-cert/CA.der \
 			-out /etc/squid-cert/CA.pem
 	else
 		echo "Certificate found..."
@@ -49,9 +50,9 @@ create_cert() {
 
 clear_certs_db() {
 	echo "Clearing generated certificate db..."
-	rm -rfv /var/lib/ssl_db/
-	/usr/lib/squid/ssl_crtd -c -s /var/lib/ssl_db
-	"$CHOWN" -R squid.squid /var/lib/ssl_db
+	sudo rm -rfv /var/lib/ssl_db/
+	sudo /usr/lib/squid/ssl_crtd -c -s /var/lib/ssl_db
+	sudo "$CHOWN" -R squid.squid /var/lib/ssl_db
 }
 
 init_squid() {
@@ -60,8 +61,8 @@ init_squid() {
 	create_cert
 	clear_certs_db
 	initialize_cache
-	htpasswd -bc /etc/squid/password  $SQUID_USERNAME $SQUID_PASSWORD
-	nohup "$SQUID" -NYCd 1 -f /etc/squid/squid.conf &
+	sudo htpasswd -bc /etc/squid/password  $SQUID_USERNAME $SQUID_PASSWORD
+	sudo nohup "$SQUID" -NYCd 1 -f /etc/squid/squid.conf &
 }
 init_squid
 }
@@ -97,9 +98,9 @@ if [ ! -f /etc/ocserv/certs/server-key.pem ] || [ ! -f /etc/ocserv/certs/server-
 	fi
 
 	# No certification found, generate one
-	mkdir /etc/ocserv/certs
+	sudo mkdir /etc/ocserv/certs
 	cd /etc/ocserv/certs
-	certtool --generate-privkey --outfile ca-key.pem
+	sudo certtool --generate-privkey --outfile ca-key.pem
 	cat > ca.tmpl <<-EOCA
 	cn = "$CA_CN"
 	organization = "$CA_ORG"
@@ -110,8 +111,9 @@ if [ ! -f /etc/ocserv/certs/server-key.pem ] || [ ! -f /etc/ocserv/certs/server-
 	cert_signing_key
 	crl_signing_key
 	EOCA
-	certtool --generate-self-signed --load-privkey ca-key.pem --template ca.tmpl --outfile ca.pem
-	certtool --generate-privkey --outfile server-key.pem 
+	sudo certtool --generate-self-signed --load-privkey ca-key.pem --template ca.tmpl --outfile ca.pem
+	sudo certtool --generate-privkey --outfile server-key.pem 
+
 	cat > server.tmpl <<-EOSRV
 	cn = "$SRV_CN"
 	organization = "$SRV_ORG"
@@ -120,27 +122,27 @@ if [ ! -f /etc/ocserv/certs/server-key.pem ] || [ ! -f /etc/ocserv/certs/server-
 	encryption_key
 	tls_www_server
 	EOSRV
-	certtool --generate-certificate --load-privkey server-key.pem --load-ca-certificate ca.pem --load-ca-privkey ca-key.pem --template server.tmpl --outfile server-cert.pem
+	sudo certtool --generate-certificate --load-privkey server-key.pem --load-ca-certificate ca.pem --load-ca-privkey ca-key.pem --template server.tmpl --outfile server-cert.pem
 
 	# Create a test user
 	if [ -z "$NO_TEST_USER" ] && [ ! -f /etc/ocserv/ocpasswd ]; then
 		echo "Create test user 'heaven' with password 'echoinheaven'"
-		echo 'heaven:Route,All:$1$fdjc.IJg$mTCHgZHlnvrf54s0At6MX.' > /etc/ocserv/ocpasswd
+		sudo echo 'heaven:Route,All:$1$fdjc.IJg$mTCHgZHlnvrf54s0At6MX.' > /etc/ocserv/ocpasswd
 	fi
 fi
 
 # Open ipv4 ip forward
-sysctl -w net.ipv4.ip_forward=1
+sudo sysctl -w net.ipv4.ip_forward=1
 
 # Enable NAT forwarding
-iptables -t nat -A POSTROUTING -j MASQUERADE
-iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
+sudo iptables -t nat -A POSTROUTING -j MASQUERADE
+sudo iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
 
 # Enable TUN device
-mkdir -p /dev/net
-mknod /dev/net/tun c 10 200
-chmod 600 /dev/net/tun
-ocserv -c /etc/ocserv/ocserv.conf -f &
+sudo mkdir -p /dev/net
+sudo mknod /dev/net/tun c 10 200
+sudo chmod 600 /dev/net/tun
+sudo ocserv -c /etc/ocserv/ocserv.conf -f &
 }
 ########### End Script for ocserv ############
 
@@ -148,17 +150,17 @@ ocserv -c /etc/ocserv/ocserv.conf -f &
 run_sshd(){
 # Config and start sshd 
 # generate host keys if not present
-ssh-keygen -A
-
+sudo ssh-keygen -A
+sed -i s/#PermitRootLogin.*/PermitRootLogin\ yes/ /etc/ssh/sshd_config 
 # check wether a random root-password is provided
 if [ ! -z "${ROOT_PASSWORD}" ] && [ "${ROOT_PASSWORD}" != "root" ]; then
-    echo "root:${ROOT_PASSWORD}" | chpasswd
+    echo "root:${ROOT_PASSWORD}" | sudo -S chpasswd
 else
 	ROOT_PASSWORD=echoinheaven
-	echo "root:${ROOT_PASSWORD}" | chpasswd
+	echo root:${ROOT_PASSWORD} | sudo -S chpasswd
 fi
 
- /usr/sbin/sshd -D &
+sudo /usr/sbin/sshd -D &
 }
 ########### End Script for sshd ##############
 
@@ -189,15 +191,15 @@ if [ -z "$ssh_port_out_docker" ]; then
     ssh_port_out_docker=22
 fi
 
-sed -i 's/server_addr = 0.0.0.0/server_addr = '$server_addr'/' /etc/frp/frpc_full.ini
-sed -i 's/server_port = 7000/server_port = '$server_port'/' /etc/frp/frpc_full.ini
-sed -i 's/privilege_token = 12345678/privilege_token = '$privilege_token'/' /etc/frp/frpc_full.ini
-sed -i 's/login_fail_exit = true/login_fail_exit = '$login_fail_exit'/' /etc/frp/frpc_full.ini
-sed -i 's/hostname_in_docker/'$hostname_in_docker'/' /etc/frp/frpc_full.ini
-sed -i 's/ip_out_docker/'$ip_out_docker'/' /etc/frp/frpc_full.ini
-sed -i 's/ssh_port_out_docker/'$ssh_port_out_docker'/' /etc/frp/frpc_full.ini
+sudo sed -i 's/server_addr = 0.0.0.0/server_addr = '$server_addr'/' /etc/frp/frpc_full.ini
+sudo sed -i 's/server_port = 7000/server_port = '$server_port'/' /etc/frp/frpc_full.ini
+sudo sed -i 's/privilege_token = 12345678/privilege_token = '$privilege_token'/' /etc/frp/frpc_full.ini
+sudo sed -i 's/login_fail_exit = true/login_fail_exit = '$login_fail_exit'/' /etc/frp/frpc_full.ini
+sudo sed -i 's/hostname_in_docker/'$hostname_in_docker'/' /etc/frp/frpc_full.ini
+sudo sed -i 's/ip_out_docker/'$ip_out_docker'/' /etc/frp/frpc_full.ini
+sudo sed -i 's/ssh_port_out_docker/'$ssh_port_out_docker'/' /etc/frp/frpc_full.ini
 
-/usr/bin/frpc -c /etc/frp/frpc_full.ini 
+sudo nohup /usr/bin/frpc -c /etc/frp/frpc_full.ini &
 }
 ################ End script for FRP ##############
 
@@ -205,6 +207,8 @@ run_squid
 run_ocserv
 run_sshd
 run_frpc
+##############################################
 
 
+# 随便执行了一个持续运行的任务,防止容器退出，后面会考虑加入supervisor
 tail -f /var/log/squid/access.log

@@ -41,26 +41,6 @@ sshd命令是openssh软件套件中的服务器守护进程
 
 [Squid](http://www.squid-cache.org/) is a caching proxy for the Web supporting HTTP, HTTPS, FTP, and more.
 
-## 更新情况
-
-### Update on 2018/11/16
-
-添加squid，并启用密码
-
-调整整体目录结构，独立每个程序为单独一个目录
-
-### Update on 2018/11/03
-
-添加docker中的sshd服务,并且开启反向代理(sshd + frpc)
-
-添加对于宿主机的ssh端口的反向代理(frpc)
-
-### Update on 2018/11/02
-Update to version 0.12.1 and use Alpine 3.7 as base image
-
-Add Frpc-0.16.0 and config to base image
-
-
 ## 容器内服务端口表
 
 |   Port   |     description     |
