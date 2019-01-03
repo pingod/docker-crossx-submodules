@@ -7,8 +7,27 @@
 if [ "$DEBUG" == "1" ]; then
   set -x
 fi
-
 set -e
+
+echo -e "如果容器无法运行，请在运行前彻底删除容器挂载的路径(如果你有使用-v /demo/openvpn:/etc/openvpn)"
+
+if [[ -z $host_ipaddr ]];then
+  echo -e "你必须向容器中定义host_ipaddr变量"
+  exit 1
+else
+  echo -e "为 ${host_ipaddr} 生成配置文件"
+  ovpn_genconfig -u udp://${host_ipaddr}
+fi
+
+echo -e "生成pki"
+#https://github.com/OpenVPN/easy-rsa
+echo -e "\n"|ovpn_initpki nopass
+
+echo -e "生成客户端配置文件"
+easyrsa build-client-full daocloud-boe nopass
+
+echo -e "导出客户端配置文件"
+ovpn_getclient daocloud-boe > ${OPENVPN}/daocloud-boe.ovpn
 
 cd $OPENVPN
 
