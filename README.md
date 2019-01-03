@@ -1,6 +1,6 @@
-# ofss（分支）
+# openvpn-fss（分支）
 
-   **ofss = ocserv + frp + sshd + squid**
+   **openvpn-fss = openvpn + frp + sshd + squid**
 
 ## 说明
   此容器用途：
