@@ -1,6 +1,6 @@
-# ofss（分支）
+# ocserv-fss（分支）
 
-   **ofss = ocserv + frp + sshd + squid**
+   **ocserv-fss = ocserv + frp + sshd + squid**
 
 ## 说明
   此容器用途：
