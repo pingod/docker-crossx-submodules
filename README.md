@@ -25,9 +25,10 @@
 
    
 
-### What is OpenConnect Server?
+### What is openvpn Server?
 
-[OpenConnect server (ocserv)](http://www.infradead.org/ocserv/) is an SSL VPN server. It implements the OpenConnect SSL VPN protocol, and has also (currently experimental) compatibility with clients using the [AnyConnect SSL VPN](http://www.cisco.com/c/en/us/support/security/anyconnect-vpn-client/tsd-products-support-series-home.html) protocol.
+[openvpn server (openvpn)](https://openvpn.net/) OpenVPN -- A Secure tunneling daemon.
+
 
 ### What is FRP
 
