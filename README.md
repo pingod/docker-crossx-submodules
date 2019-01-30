@@ -191,6 +191,15 @@ Squid 默认密码为heaven/echoinheaven
 
 
 ```bash
+# docker run --name ofss --privileged  \
+# -e "server_addr=bbs.xxx.me" \
+# -e "hostname_in_docker=daocloud-bj-41"  \
+# -e "ip_out_docker=192.168.1.xx" \
+# -e "ssh_port_out_docker=22" \
+# -e "TZ=Asia/Chongqing" \
+# --restart=always -d \
+# registry.cn-hangzhou.aliyuncs.com/sourcegarden/docker-ocserv-ofss:v1.0
+
 docker run --name ofss --privileged  \
 -e "server_addr=bbs.xxx.me" \
 -e "hostname_in_docker=daocloud-bj-41"  \
@@ -198,7 +207,7 @@ docker run --name ofss --privileged  \
 -e "ssh_port_out_docker=22" \
 -e "TZ=Asia/Chongqing" \
 --restart=always -d \
-registry.cn-hangzhou.aliyuncs.com/sourcegarden/docker-ocserv-ofss:v1.0
+registry.cn-hangzhou.aliyuncs.com/sourcegarden/ocserv-ofss:v1.0
 
 ```
 
