@@ -9,7 +9,7 @@
 
   此容器包含：
 
-    OpenConnect VPN Server(ocserv)： ocserv vpn server
+    OpenVPN ： OpenVPN的技术核心是虚拟网卡，其次是SSL协议实现。
 
     FRP： FRP 内网穿透客户端
 
@@ -22,7 +22,8 @@
     使用此容器的前提是你已经在公网环境搭建了FRP的服务端
 
     容器运行后需要去frp的server端获取服务端暴露出来的端口，或者在客户端使用frpc status -c xx.conf 查看暴露的端口
-
+    
+    容器启动后默认会自动生成openvpn的PKI目录，如果你打算使用自己的PKI目录，那么在容器启动的时候将openvpn所需要的配置文件挂载到/etc/openvpn路径下
    
 
 ### What is openvpn Server?
@@ -47,42 +48,26 @@ sshd命令是openssh软件套件中的服务器守护进程
 |   Port   |     description     |
 |:------------:|:---------------:|
 |  **22**   |      sshd     |
-|  **443**   |      ocserv/tcp    |
-|  **443**   |      ocserv/udp    |
+|  **1194**   |      openvpn/udp    |
 |  **3128**   |      squid/proxy port     |
 |  **4128**   |      squid/ssl_dump     |
-|  **7000**   |      frp_client     |
+|  **7100**   |      frp_client     |
 
 ## Environment Variables
 
-### Ocserv Variables
+### Openvpn Variables
+DEBUG:  是否开启以bash -x 的方式来运行ovpn_run脚本 （选填）
 
-All the variables to this image is optional, which means you don't have to type in any environment variables, and you can have a OpenConnect Server out of the box! However, if you like to config the ocserv the way you like it, here's what you wanna know.
+server_addr： 生成openvpn配置文件的服务器地址，也就是openvpn server地址。共用FRP中的变量server_addr （必填）
 
-`CA_CN`, this is the common name used to generate the CA(Certificate Authority).(选填)
-
-`CA_ORG`, this is the organization name used to generate the CA.(选填)
-
-`CA_DAYS`, this is the expiration days used to generate the CA.(选填)
-
-`SRV_CN`, this is the common name used to generate the server certification.(选填)
-
-`SRV_ORG`, this is the organization name used to generate the server certification.(选填)
-
-`SRV_DAYS`, this is the expiration days used to generate the server certification.(选填)
-
-`NO_TEST_USER`, while this variable is set to not empty, the `test` user will not be created. You have to create your own user with password. The default value is to create `test` user with password `test`.(选填)
-
-The default values of the above environment variables:
+OPENVPN: openvpn配置文件在容器中的路径 (选填)
 
 |   Variable   |     Default     |
 |:------------:|:---------------:|
-|  **CA_CN**   |      VPN CA     |
-|  **CA_ORG**  |     Big Corp    |
-| **CA_DAYS**  |       9999      |
-|  **SRV_CN**  | www.example.com |
-| **SRV_ORG**  |    My Company   |
-| **SRV_DAYS** |       9999      |
+|  **DEBUG**   |      0     |
+| **server_addr** | 0.0.0.0 |
+| **OPENVPN** | /etc/openvpn |
+
 
 ### FRP Variables
 
@@ -168,15 +153,13 @@ The default values of the above environment variables:
 
 /var/log/squid/  squid 日志路径
 
-### Ocserv
+### Openvpn
 
-/etc/ocserv/certs/   ocserv 证书路径
+/etc/openvpn/PKI/   openvpn 证书路径
 
-/etc/ocserv/ ocserv配置文件路径
+/etc/openvpn/ openvpn配置文件路径
 
-   /etc/ocserv/ocpasswd   ocserv用户密码文件
-
-   /etc/ocserv/ocserv.conf  ocserv配置文件
+   /etc/openvpn/openvpn.conf  openvpn配置文件
 
 
 
@@ -184,7 +167,7 @@ The default values of the above environment variables:
 
 ### Quick Start
 
-Ocserv 默认密码为heaven/echoinheaven
+openvpn 默认证书为 daocloud-boe.ovpn （只为临时使用）
 
 SSH 默认密码为root/echoinheaven
 
@@ -192,86 +175,20 @@ Squid 默认密码为heaven/echoinheaven
 
 
 ```bash
-docker run --name ofss --privileged  \
--e "server_addr=bbs.xxx.me" \
--e "hostname_in_docker=daocloud-bj-41"  \
--e "ip_out_docker=192.168.1.xx" \
--e "ssh_port_out_docker=22" \
--e "TZ=Asia/Chongqing" \
---restart=always -d \
-registry.cn-hangzhou.aliyuncs.com/sourcegarden/docker-ocserv-ofss:v1.0
+docker run --restart=always --name open --privileged  -v /demo/openvpn:/etc/openvpn -v  /var/run/docker.sock:/var/run/docker.sock -e "server_addr=123.57.3.123" -e "hostname_in_docker=local-demo-test"  -e "ip_out_docker=192.168.1.27" --restart=always -d registry.cn-hangzhou.aliyuncs.com/sourcegarden/openvpn-fss:v0.1
 
 ```
 
 
-
-### Examples for ocserv
-
-**下面将单从ocserv服务讲解如何使用该镜像**
-
-Start an instance out of the box with username `heaven` and password `echoinheaven`
-
-```bash
-docker run --name ocserv --privileged -p 443:443 -p 443:443/udp -d registry.cn-hangzhou.aliyuncs.com/sourcegarden/docker-ocserv-ofss
-```
-
-Start an instance with server name `my.test.com`, `My Test` and `365` days
-
-```bash
-docker run --name ocserv --privileged -p 443:443 -p 443:443/udp -e SRV_CN=my.test.com -e SRV_ORG="My Test" -e SRV_DAYS=365 -d registry.cn-hangzhou.aliyuncs.com/sourcegarden/docker-ocserv-ofss
-```
-
-Start an instance with CA name `My CA`, `My Corp` and `3650` days
-
-```bash
-docker run --name ocserv --privileged -p 443:443 -p 443:443/udp -e CA_CN="My CA" -e CA_ORG="My Corp" -e CA_DAYS=3650 -d registry.cn-hangzhou.aliyuncs.com/sourcegarden/docker-ocserv-ofss
-```
-
-A totally customized instance with both CA and server certification
-
-```bash
-docker run --name ocserv --privileged -p 443:443 -p 443:443/udp -e CA_CN="My CA" -e CA_ORG="My Corp" -e CA_DAYS=3650 -e SRV_CN=my.test.com -e SRV_ORG="My Test" -e SRV_DAYS=365 -d registry.cn-hangzhou.aliyuncs.com/sourcegarden/docker-ocserv-ofss
-```
-
-Start an instance as above but without test user
-
-```bash
-docker run --name ocserv --privileged -p 443:443 -p 443:443/udp -e CA_CN="My CA" -e CA_ORG="My Corp" -e CA_DAYS=3650 -e SRV_CN=my.test.com -e SRV_ORG="My Test" -e SRV_DAYS=365 -e NO_TEST_USER=1 -v /some/path/to/ocpasswd:/etc/ocserv/ocpasswd -d registry.cn-hangzhou.aliyuncs.com/sourcegarden/docker-ocserv-ofss
-```
-
-**WARNING:** The ocserv requires the ocpasswd file to start, if `NO_TEST_USER=1` is provided, there will be no ocpasswd created, which will stop the container immediately after start it. You must specific a ocpasswd file pointed to `/etc/ocserv/ocpasswd` by using the volume argument `-v` by docker as demonstrated above.
-
-#### User operations
-
-All the users opertaions happened while the container is running. If you used a different container name other than `ocserv`, then you have to change the container name accordingly.
+#### Openvpn operations
 
 ##### Add user
 
-If say, you want to create a user named `tommy`, type the following command
+# 需要执行下面2个命令才能得到客户端配置文件
+docker exec -it open easyrsa build-client-full daocloud-boe nopass
 
-```bash
-docker exec -ti ocserv ocpasswd -c /etc/ocserv/ocpasswd -g "Route,All" tommy
-Enter password:
-Re-enter password:
-```
+docker exec -it open ovpn_getclient daocloud-boe > ${OPENVPN}/daocloud-boe.ovpn
 
-When prompt for password, type the password twice, then you will have the user with the password you want.
-
->`-g "Route,ALL"` means add user `tommy` to group `Route` and group `All`
-
-##### Delete user
-
-Delete user is similar to add user, just add another argument `-d` to the command line
-
-```bash
-docker exec -ti ocserv ocpasswd -c /etc/ocserv/ocpasswd -d test
-```
-
-The above command will delete the default user `test`, if you start the instance without using environment variable `NO_TEST_USER`.
-
-##### Change password
-
-Change password is exactly the same command as add user, please refer to the command mentioned above.
 
 
 ## 参考链接
@@ -281,5 +198,6 @@ squid：
 FRP:
    https://github.com/fatedier/frp
 
-Ocserv:
-   https://github.com/TommyLau/docker-ocserv
+Openvpn:
+   Openvpn 这个目录下有dockerfile，如果你只需要openvpn容器化，那么可以直接使用其目录下的dockerfile
+   https://github.com/kylemanna/docker-openvpn
