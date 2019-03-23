@@ -1,0 +1,3 @@
+[submodule "squid"]
+	path = squid
+	url = git@github.com:pingod/squid-alpine-ssl.git
