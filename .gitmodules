@@ -1,3 +1,6 @@
 [submodule "openvpn"]
 	path = openvpn
 url=git@github.com:pingod/docker-openvpn.git
+[submodule "squid"]
+	path = squid
+	url = git@github.com:pingod/squid-alpine-ssl.git
