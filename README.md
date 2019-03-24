@@ -1,6 +1,6 @@
-# ocserv-fs （分支）
+# ofs （分支）
 
-   **ocserv-fs = ocserv + frp + sshd**
+   **ofs = ocserv + frp + sshd**
 
 ## 说明
 使用此容器的前提是你已经在公网环境搭建了FRP的服务端
