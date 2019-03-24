@@ -207,7 +207,7 @@ docker run --name ofss --privileged  \
 -e "ssh_port_out_docker=22" \
 -e "TZ=Asia/Chongqing" \
 --restart=always -d \
-registry.cn-hangzhou.aliyuncs.com/sourcegarden/ocserv-fss:v1.0
+registry.cn-hangzhou.aliyuncs.com/sourcegarden/ocserv-ofss:v1.0
 
 ```
 
