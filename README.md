@@ -3,9 +3,9 @@
 
 **除了wireguard，其余程序可以正常使用**
 
-# wireguard-fss（分支）
+# wfss（分支）
 
-   **wireguard-fss = wireguard + frp(latest) + sshd + squid**
+   **wfss = wireguard + frp(latest) + sshd + squid**
 
 ## 说明
 
