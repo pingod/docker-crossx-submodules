@@ -1,0 +1,3 @@
+[submodule "submodules/ocserv"]
+	path = submodules/ocserv
+	url = git@github.com:pingod/docker-ocserv.git
