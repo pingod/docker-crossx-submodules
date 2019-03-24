@@ -1,7 +1,7 @@
 #!/bin/bash
 
 NAMESPACE=sourcegarden
-NAME=docker-ocserv-ofss
+NAME=openvpn-fss
 FULLNAME=registry.cn-hangzhou.aliyuncs.com/${NAMESPACE}/${NAME}
 #FULLNAME=$(NAMESPACE)/$(NAME)
 DOCKERFILE=Dockerfile

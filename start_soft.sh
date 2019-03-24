@@ -86,84 +86,6 @@ init_squid
 }
 ############# End script for squid ###########
 
-
-############# Start script for ocserv ########
-run_ocserv(){
-if [ ! -f /etc/ocserv/certs/server-key.pem ] || [ ! -f /etc/ocserv/certs/server-cert.pem ]; then
-	# Check environment variables
-	if [ -z "$CA_CN" ]; then
-		CA_CN="VPN CA"
-	fi
-
-	if [ -z "$CA_ORG" ]; then
-		CA_ORG="Big Corp"
-	fi
-
-	if [ -z "$CA_DAYS" ]; then
-		CA_DAYS=9999
-	fi
-
-	if [ -z "$SRV_CN" ]; then
-		SRV_CN="www.example.com"
-	fi
-
-	if [ -z "$SRV_ORG" ]; then
-		SRV_ORG="MyCompany"
-	fi
-
-	if [ -z "$SRV_DAYS" ]; then
-		SRV_DAYS=9999
-	fi
-
-	# No certification found, generate one
-	sudo mkdir /etc/ocserv/certs
-	cd /etc/ocserv/certs
-	sudo certtool --generate-privkey --outfile ca-key.pem
-	cat > ca.tmpl <<-EOCA
-	cn = "$CA_CN"
-	organization = "$CA_ORG"
-	serial = 1
-	expiration_days = $CA_DAYS
-	ca
-	signing_key
-	cert_signing_key
-	crl_signing_key
-	EOCA
-	sudo certtool --generate-self-signed --load-privkey ca-key.pem --template ca.tmpl --outfile ca.pem
-	sudo certtool --generate-privkey --outfile server-key.pem 
-
-	cat > server.tmpl <<-EOSRV
-	cn = "$SRV_CN"
-	organization = "$SRV_ORG"
-	expiration_days = $SRV_DAYS
-	signing_key
-	encryption_key
-	tls_www_server
-	EOSRV
-	sudo certtool --generate-certificate --load-privkey server-key.pem --load-ca-certificate ca.pem --load-ca-privkey ca-key.pem --template server.tmpl --outfile server-cert.pem
-
-	# Create a test user
-	if [ -z "$NO_TEST_USER" ] && [ ! -f /etc/ocserv/ocpasswd ]; then
-		echo "Create test user 'heaven' with password 'echoinheaven'"
-		sudo echo 'heaven:Route,All:$1$fdjc.IJg$mTCHgZHlnvrf54s0At6MX.' > /etc/ocserv/ocpasswd
-	fi
-fi
-
-# Open ipv4 ip forward
-sudo sysctl -w net.ipv4.ip_forward=1
-
-# Enable NAT forwarding
-sudo iptables -t nat -A POSTROUTING -j MASQUERADE
-sudo iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS --clamp-mss-to-pmtu
-
-# Enable TUN device
-sudo mkdir -p /dev/net
-sudo mknod /dev/net/tun c 10 200
-sudo chmod 600 /dev/net/tun
-sudo ocserv -c /etc/ocserv/ocserv.conf -f &
-}
-########### End Script for ocserv ############
-
 ########### Start script for sshd ############
 run_sshd(){
 # Config and start sshd 
@@ -188,7 +110,7 @@ if [ -z "$server_addr" ]; then
 	server_addr=0.0.0.0
 fi
 if [ -z "$server_port" ]; then
-	server_port=7000
+	server_port=7100
 fi
 if [ -z "$privilege_token" ]; then
 	privilege_token=405520
@@ -210,7 +132,7 @@ if [ -z "$ssh_port_out_docker" ]; then
 fi
 
 sudo sed -i 's/server_addr = 0.0.0.0/server_addr = '$server_addr'/' /etc/frp/frpc_full.ini
-sudo sed -i 's/server_port = 7000/server_port = '$server_port'/' /etc/frp/frpc_full.ini
+sudo sed -i 's/server_port = 7100/server_port = '$server_port'/' /etc/frp/frpc_full.ini
 sudo sed -i 's/privilege_token = 12345678/privilege_token = '$privilege_token'/' /etc/frp/frpc_full.ini
 sudo sed -i 's/login_fail_exit = true/login_fail_exit = '$login_fail_exit'/' /etc/frp/frpc_full.ini
 sudo sed -i 's/hostname_in_docker/'$hostname_in_docker'/' /etc/frp/frpc_full.ini
@@ -221,12 +143,25 @@ sudo nohup /usr/bin/frpc -c /etc/frp/frpc_full.ini &
 }
 ################ End script for FRP ##############
 
+############# Start script for openvpn ########
+run_openvpn(){
+  /usr/local/bin/ovpn_run
+
+#由于默认给openvpn生成了一个客户端连接配置文件，但是此配置文件里的端口应该为frp的远程随机端口，因此在下面将要获取远端随机端口并且替换掉客户端配置文件
+#等待frpc启动
+sleep 5
+remote_openvpn_port=$(/usr/bin/frpc status -c /etc/frp/frpc_full.ini |grep 127.0.0.1:1194|awk -F: '{print $3}')
+if [[ -f /etc/openvpn/daocloud-boe.ovpn  ]];then
+  sed -i "s/remote bbs.itaojin.me 1194 udp/remote bbs.itaojin.me ${remote_openvpn_port} udp/g" /etc/openvpn/daocloud-boe.ovpn
+fi
+
+}
+########### End Script for openvpn ############
+
 run_squid
-run_ocserv
 run_sshd
 run_frpc
-##############################################
-
+run_openvpn
 
 # 随便执行了一个持续运行的任务,防止容器退出，后面会考虑加入supervisor
 tail -f /var/log/squid/access.log

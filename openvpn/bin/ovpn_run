@@ -11,20 +11,32 @@ set -e
 
 echo -e "如果容器无法运行，请在运行前彻底删除容器挂载的路径(如果你有使用-v /demo/openvpn:/etc/openvpn)"
 
-if [[ -z $host_ipaddr ]];then
-  echo -e "你必须向容器中定义host_ipaddr变量"
+if [[ -z $server_addr ]];then
+  echo -e "你必须向容器中定义server_addr变量"
+  server_addr=0.0.0.0
   exit 1
 else
-  echo -e "为 ${host_ipaddr} 生成配置文件"
-  ovpn_genconfig -u udp://${host_ipaddr}
+  echo -e "为 ${server_addr} 生成配置文件"
+  ovpn_genconfig -u udp://${server_addr}
 fi
 
-echo -e "生成pki"
-#https://github.com/OpenVPN/easy-rsa
-echo -e "\n"|ovpn_initpki nopass
+if [[ -d /etc/openvpn/pki ]];then
+  echo -e "已经存在PKI目录，跳过PKI生成"
+else
+    echo -e "生成pki"
+    #https://github.com/OpenVPN/easy-rsa
+    echo -e "\n"|ovpn_initpki nopass
+fi
 
-echo -e "生成客户端配置文件"
-easyrsa build-client-full daocloud-boe nopass
+if `find /etc/openvpn/pki -type f -name daocloud* >/dev/null `;then
+  echo -e "文件已经存在,下面将重新生成demo客户端配置"
+  find  /etc/openvpn/pki/ -type f -name daocloud* -exec rm -fr {} \;
+  sed -i "/CN=daocloud-boe/d" /etc/openvpn/pki/index.txt
+  easyrsa build-client-full daocloud-boe nopass
+else
+  echo -e "生成客户端配置文件"
+  easyrsa build-client-full daocloud-boe nopass
+fi
 
 echo -e "导出客户端配置文件"
 ovpn_getclient daocloud-boe > ${OPENVPN}/daocloud-boe.ovpn
@@ -116,4 +128,5 @@ if [ $? = 0 ]; then
 fi
 
 echo "Running 'openvpn ${ARGS[@]} ${USER_ARGS[@]}'"
-exec openvpn ${ARGS[@]} ${USER_ARGS[@]}
+#将进程放置到后台
+exec nohup openvpn ${ARGS[@]} ${USER_ARGS[@]} &
