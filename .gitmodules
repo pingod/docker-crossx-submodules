@@ -7,3 +7,6 @@
 [submodule "submodules/ocserv"]
 	path = submodules/ocserv
 	url = git@github.com:pingod/docker-ocserv.git
+[submodule "submodules/openvpn"]
+	path = submodules/openvpn
+	url = git@github.com:pingod/docker-openvpn.git
