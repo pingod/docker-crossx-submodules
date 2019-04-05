@@ -43,14 +43,14 @@ RUN buildDeps=" \
 
 
 # config Frp (frp_0.21.0_linux_386.tar.gz)
-COPY frp/frpc /usr/bin/frpc
-COPY frp/frpc_full.ini /etc/frp/frpc_full.ini
+COPY submodules/frp/frpc /usr/bin/frpc
+COPY submodules/frp/frpc_full.ini /etc/frp/frpc_full.ini
 RUN chmod a+x /usr/bin/frpc
 
 # config squid
-COPY squid/start.sh /usr/local/bin/
-COPY squid/openssl.cnf.add /etc/ssl
-COPY squid/conf/squid*.conf /etc/squid/
+COPY submodules/squid/start.sh /usr/local/bin/
+COPY submodules/squid/openssl.cnf.add /etc/ssl
+COPY submodules/squid/conf/squid*.conf /etc/squid/
 RUN cat /etc/ssl/openssl.cnf.add >> /etc/ssl/openssl.cnf
 RUN chmod +x /usr/local/bin/start.sh
 
@@ -71,4 +71,3 @@ EXPOSE 4128
 EXPOSE 22
 
 CMD ["/usr/bin/frpc", "-c", "/etc/frp/frpc_full.ini"]
-#CMD ["sh"]
