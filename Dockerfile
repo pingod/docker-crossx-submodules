@@ -51,7 +51,7 @@ RUN buildDeps=" \
 	&& rm -rf /var/cache/apk/*
 
 # Setup config
-COPY groupinfo.txt /tmp/
+COPY ./submodules/ocserv/groupinfo.txt /tmp/
 RUN set -x \
 	&& sed -i 's/\.\/sample\.passwd/\/etc\/ocserv\/ocpasswd/' /etc/ocserv/ocserv.conf \
 	&& sed -i 's/\(max-same-clients = \)2/\110/' /etc/ocserv/ocserv.conf \
@@ -69,14 +69,18 @@ RUN set -x \
 
 WORKDIR /etc/ocserv
 
+#config Frpc
 # Frp frp_0.16.0_linux_386.tar.gz
-COPY frpc /usr/bin/frpc
-COPY frpc_full.ini /etc/frp/frpc_full.ini
-COPY All /etc/ocserv/config-per-group/All
-COPY cn-no-route.txt /etc/ocserv/config-per-group/Route
+COPY ./submodules/frpc/frpc /usr/bin/frpc
+COPY ./submodules/frpc/frpc_full.ini /etc/frp/frpc_full.ini
+RUN chmod a+x /usr/bin/frpc
+
+
+#config  Ocserv
+COPY ./submodules/ocserv/All /etc/ocserv/config-per-group/All
+COPY ./submodules/ocserv/cn-no-route.txt /etc/ocserv/config-per-group/Route
 COPY docker-entrypoint.sh /entrypoint.sh
 
-RUN chmod a+x /usr/bin/frpc
 
 ENTRYPOINT ["/entrypoint.sh"]
 
