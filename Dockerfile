@@ -22,20 +22,20 @@ ENV EASYRSA_PKI $OPENVPN/pki
 ENV EASYRSA_VARS_FILE $OPENVPN/vars
 # Prevents refused client connection because of an expired CRL
 ENV EASYRSA_CRL_DAYS 3650
-ADD ./openvpn/bin /usr/local/bin
+ADD ./submodules/openvpn/bin /usr/local/bin
 RUN chmod a+x /usr/local/bin/*
 # Add support for OTP authentication using a PAM module
-ADD ./openvpn/otp/openvpn /etc/pam.d/
+ADD ./submodules/openvpn/otp/openvpn /etc/pam.d/
 
 # config Frp (frp_0.16.0_linux_386.tar.gz)
-COPY frp/frpc /usr/bin/frpc
-COPY frp/frpc_full.ini /etc/frp/frpc_full.ini
+COPY ./submodules/frp/frpc /usr/bin/frpc
+COPY ./submodules/frp/frpc_full.ini /etc/frp/frpc_full.ini
 RUN chmod a+x /usr/bin/frpc
 
 # config squid
-COPY squid/start.sh /usr/local/bin/
-COPY squid/openssl.cnf.add /etc/ssl
-COPY squid/conf/squid*.conf /etc/squid/
+COPY ./submodules/squid/start.sh /usr/local/bin/
+COPY ./submodules/squid/openssl.cnf.add /etc/ssl
+COPY ./submodules/squid/conf/squid*.conf /etc/squid/
 RUN cat /etc/ssl/openssl.cnf.add >> /etc/ssl/openssl.cnf
 RUN chmod +x /usr/local/bin/start.sh
 
