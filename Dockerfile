@@ -56,7 +56,7 @@ RUN buildDeps=" \
 	&& rm -rf /var/cache/apk/*
 
 # Setup config
-COPY ocserv/groupinfo.txt /tmp/
+COPY ./submodules/ocserv/groupinfo.txt /tmp/
 RUN set -x \
 	&& sed -i 's/\.\/sample\.passwd/\/etc\/ocserv\/ocpasswd/' /etc/ocserv/ocserv.conf \
 	&& sed -i 's/\(max-same-clients = \)2/\110/' /etc/ocserv/ocserv.conf \
@@ -73,18 +73,18 @@ RUN set -x \
 	&& rm -fr /tmp/groupinfo.txt
 
 # config Frp (frp_0.16.0_linux_386.tar.gz)
-COPY frp/frpc /usr/bin/frpc
-COPY frp/frpc_full.ini /etc/frp/frpc_full.ini
+COPY ./submodules/frp/frpc /usr/bin/frpc
+COPY ./submodules/frp/frpc_full.ini /etc/frp/frpc_full.ini
 RUN chmod a+x /usr/bin/frpc
 
 # config ocserv
-COPY ocserv/All /etc/ocserv/config-per-group/All
-COPY ocserv/cn-no-route.txt /etc/ocserv/config-per-group/Route
+COPY ./submodules/ocserv/All /etc/ocserv/config-per-group/All
+COPY ./submodules/ocserv/cn-no-route.txt /etc/ocserv/config-per-group/Route
 
 # config squid
-COPY squid/start.sh /usr/local/bin/
-COPY squid/openssl.cnf.add /etc/ssl
-COPY squid/conf/squid*.conf /etc/squid/
+COPY ./submodules/squid/start.sh /usr/local/bin/
+COPY ./submodules/squid/openssl.cnf.add /etc/ssl
+COPY ./submodules/squid/conf/squid*.conf /etc/squid/
 RUN cat /etc/ssl/openssl.cnf.add >> /etc/ssl/openssl.cnf
 RUN chmod +x /usr/local/bin/start.sh
 
