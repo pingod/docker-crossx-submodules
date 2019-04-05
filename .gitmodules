@@ -10,3 +10,6 @@
 [submodule "submodules/openvpn"]
 	path = submodules/openvpn
 	url = git@github.com:pingod/docker-openvpn.git
+[submodule "submodules/wireguard"]
+	path = submodules/wireguard
+	url = git@github.com:pingod/docker-wireguard.git
