@@ -68,7 +68,7 @@ create_cert() {
 clear_certs_db() {
 	echo "Clearing generated certificate db..."
 	sudo rm -rfv /var/lib/ssl_db/
-	sudo /usr/lib/squid/ssl_crtd -c -s /var/lib/ssl_db
+	sudo /usr/lib/squid/security_file_certgen -c -s /var/cache/squid/ssl_db -M 4MB
 	sudo "$CHOWN" -R squid.squid /var/lib/ssl_db
 }
 
@@ -146,8 +146,13 @@ sudo nohup /usr/bin/frpc -c ${config_file_frpc} &
 
 ############# Start script for openvpn ########
 run_openvpn(){
-  /usr/local/bin/ovpn_run
 
+if [[ -f /etc/openvpn/openvpn.conf ]];then
+  echo 1 > /proc/sys/net/ipv4/ip_forward
+  /usr/sbin/openvpn --config /etc/openvpn/openvpn.conf --client-config-dir /etc/openvpn/ccd --crl-verify /etc/openvpn/crl.pem
+else
+  /usr/local/bin/ovpn_run
+fi
 #由于默认给openvpn生成了一个客户端连接配置文件，但是此配置文件里的端口应该为frp的远程随机端口，因此在下面将要获取远端随机端口并且替换掉客户端配置文件
 #等待frpc启动
 sleep 5

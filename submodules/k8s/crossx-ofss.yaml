@@ -2,8 +2,8 @@
 kind: Deployment
 apiVersion: extensions/v1beta1
 metadata:
-  namespace: default
-  name: ofss-ofss1
+  namespace: kube-system
+  name: ofss
 spec:
   replicas: 1
   template:
@@ -19,16 +19,18 @@ spec:
                     key: node-role.kubernetes.io/master
       containers:
         - terminationMessagePath: /dev/termination-log
-          name: ofss-ofss
-          image: '168.130.1.31/daocloud/ofss:v1.0'
+          name: ofss
+          securityContext: 
+            privileged: true
+          image: 'registry.cn-hangzhou.aliyuncs.com/sourcegarden/openvpn-fss:v0.2'
           terminationMessagePolicy: File
           env:
             - name: server_addr
               value: bbs.itaojin.me
             - name: hostname_in_docker
-              value: rongzhitong-dev-k8s-32
+              value: daocloud-k8s-sh
             - name: ip_out_docker
-              value: 168.130.1.32
+              value: 10.25.10.20
             - name: ssh_port_out_docker
               value: '22'
             - name: TZ
@@ -38,5 +40,17 @@ spec:
             requests:
               memory: '0'
             limits:
-              cpu: '2'
-              memory: '4294967296'
+              cpu: '1'
+              memory: '1G'
+          volumeMounts:
+          - mountPath: /etc/openvpn
+            name: data-ofss-openvpn
+          - mountPath: /var/run/docker.sock
+            name: docker-socket
+      volumes:
+      - name: data-ofss-openvpn
+        hostPath:
+          path: /data/tools/ofss/openvpn
+      - name: docker-socket
+        hostPath:
+          path: /var/run/docker.sock
