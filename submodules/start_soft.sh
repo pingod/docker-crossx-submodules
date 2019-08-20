@@ -100,7 +100,7 @@ else
 	echo root:${ROOT_PASSWORD} | sudo -S chpasswd
 fi
 
-sudo /usr/sbin/sshd -D &
+sudo /usr/sbin/sshd -D
 }
 ########### End Script for sshd ##############
 
@@ -132,27 +132,27 @@ if [ -z "$ssh_port_out_docker" ]; then
 fi
 
 export config_file_frpc=/etc/frp/frpc-lite.ini
-sudo sed -i 's/server_addr = 0.0.0.0/server_addr = '$server_addr'/' ${config_file_frpc}
-sudo sed -i 's/server_port = 7100/server_port = '$server_port'/' ${config_file_frpc}
-sudo sed -i 's/privilege_token = 12345678/privilege_token = '$privilege_token'/' ${config_file_frpc}
-sudo sed -i 's/login_fail_exit = true/login_fail_exit = '$login_fail_exit'/' ${config_file_frpc}
-sudo sed -i 's/hostname_in_docker/'$hostname_in_docker'/' ${config_file_frpc}
-sudo sed -i 's/ip_out_docker/'$ip_out_docker'/' ${config_file_frpc}
-sudo sed -i 's/ssh_port_out_docker/'$ssh_port_out_docker'/' ${config_file_frpc}
+sudo sed -i 's/server_addr = 0.0.0.0/server_addr = '$server_addr'/g' ${config_file_frpc}
+sudo sed -i 's/server_port = 7100/server_port = '$server_port'/g' ${config_file_frpc}
+sudo sed -i 's/privilege_token = 12345678/privilege_token = '$privilege_token'/g' ${config_file_frpc}
+sudo sed -i 's/login_fail_exit = true/login_fail_exit = '$login_fail_exit'/g' ${config_file_frpc}
+sudo sed -i 's/hostname_in_docker/'$hostname_in_docker'/g' ${config_file_frpc}
+sudo sed -i 's/ip_out_docker/'$ip_out_docker'/g' ${config_file_frpc}
+sudo sed -i 's/ssh_port_out_docker/'$ssh_port_out_docker'/g' ${config_file_frpc}
 
-sudo nohup /usr/bin/frpc -c ${config_file_frpc} &
+sudo nohup /usr/bin/frpc -c ${config_file_frpc}  &
 }
 ################ End script for FRP ##############
 
 ############# Start script for openvpn ########
 run_openvpn(){
 
-if [[ -f /etc/openvpn/openvpn.conf ]];then
-  echo 1 > /proc/sys/net/ipv4/ip_forward
-  /usr/sbin/openvpn --config /etc/openvpn/openvpn.conf --client-config-dir /etc/openvpn/ccd --crl-verify /etc/openvpn/crl.pem
-else
-  /usr/local/bin/ovpn_run
-fi
+# if [[ -f /etc/openvpn/openvpn.conf ]];then
+#   echo 1 > /proc/sys/net/ipv4/ip_forward
+#   /usr/sbin/openvpn --config /etc/openvpn/openvpn.conf --client-config-dir /etc/openvpn/ccd --crl-verify /etc/openvpn/crl.pem
+# else
+    nohup /usr/local/bin/ovpn_run &
+# fi
 #由于默认给openvpn生成了一个客户端连接配置文件，但是此配置文件里的端口应该为frp的远程随机端口，因此在下面将要获取远端随机端口并且替换掉客户端配置文件
 #等待frpc启动
 sleep 5
@@ -165,9 +165,6 @@ fi
 ########### End Script for openvpn ############
 
 run_squid
-run_sshd
 run_frpc
 run_openvpn
-
-# 随便执行了一个持续运行的任务,防止容器退出，后面会考虑加入supervisor
-tail -f /var/log/squid/access.log
+run_sshd
