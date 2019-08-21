@@ -67,9 +67,9 @@ create_cert() {
 
 clear_certs_db() {
 	echo "Clearing generated certificate db..."
-	sudo rm -rfv /var/lib/ssl_db/
+	sudo rm -rfv /var/cache/squid/ssl_db
 	sudo /usr/lib/squid/security_file_certgen -c -s /var/cache/squid/ssl_db -M 4MB
-	sudo "$CHOWN" -R squid.squid /var/lib/ssl_db
+	sudo "$CHOWN" -R squid.squid /var/cache/squid/ssl_db
 }
 
 init_squid() {
