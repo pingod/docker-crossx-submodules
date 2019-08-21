@@ -9,6 +9,12 @@ data:
   ip_out_docker: 10.25.10.20
   server_addr: bbs.itaojin.me
   ssh_port_out_docker: '22'
+#下面是easyrsa生成证书所需要的变量,保持默认即可(下面变量已经写到容器启动脚本中,为了保证变量存在所以在这里也定义了一次)
+  OPENVPN: /etc/openvpn
+  EASYRSA_PKI: '/etc/openvpn/pki'
+  EASYRSA_VARS_FILE: '/etc/openvpn/vars'
+  EASYRSA: /usr/share/easy-rsa
+  EASYRSA_CRL_DAYS: '3650'
 
 ---
 kind: ConfigMap

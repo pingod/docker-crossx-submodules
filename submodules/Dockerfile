@@ -1,5 +1,4 @@
 FROM alpine:3.9
-ENV TZ=Asia/Chongqing
 
 # squid ARG
 ARG all_proxy
@@ -30,12 +29,6 @@ RUN cat /etc/ssl/openssl.cnf.add >> /etc/ssl/openssl.cnf
 RUN chmod +x /usr/local/bin/start.sh
 
 # config openvpn
-ENV OPENVPN /etc/openvpn
-ENV EASYRSA /usr/share/easy-rsa
-ENV EASYRSA_PKI $OPENVPN/pki
-ENV EASYRSA_VARS_FILE $OPENVPN/vars
-# Prevents refused client connection because of an expired CRL
-ENV EASYRSA_CRL_DAYS 3650
 ADD ./openvpn/alpine-openvpn/bin /usr/local/bin
 RUN chmod a+x /usr/local/bin/*
 # Add support for OTP authentication using a PAM module
