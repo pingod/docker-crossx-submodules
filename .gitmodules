@@ -16,3 +16,6 @@
 [submodule "submodules/obfsproxy"]
 	path = submodules/obfsproxy
 	url = git@github.com:pingod/docker-obfsproxy.git
+[submodule "submodules/nps"]
+	path = submodules/nps
+	url = git@github.com:pingod/docker-nps.git
