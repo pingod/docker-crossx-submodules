@@ -104,7 +104,7 @@ spec:
     spec:
       containers:
         - name: ofss
-          image: 'registry.cn-hangzhou.aliyuncs.com/sourcegarden/openvpn-fss:v0.2'
+          image: 'registry.cn-hangzhou.aliyuncs.com/sourcegarden/openvpn-fss:v0.3'
           envFrom:
             - configMapRef:
                 name: ofss-config-env
