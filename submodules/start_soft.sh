@@ -153,20 +153,21 @@ sudo nohup /usr/bin/frpc -c ${config_file_frpc}  &
 ############# Start script for openvpn ########
 run_openvpn(){
 # 配置生成证书所需要变量,如果没有下面变量可能导致openvpn无法启动或无法添加用户证书
-if ! $(env|grep EASYRSA_VARS_FILE > /dev/null);then
-echo "缺失系统环境变量,现重新配置系统环境变量"
-cat >> /etc/profile << EOF
-#from /start_soft.sh file for easyrsa
-export OPENVPN="/etc/openvpn"
-export EASYRSA="/usr/share/easy-rsa"
-export EASYRSA_PKI="${OPENVPN}/pki"
-export EASYRSA_VARS_FILE="${OPENVPN}/vars"
-# Prevents refused client connection because of an expired CRL
-export EASYRSA_CRL_DAYS="3650"
-EOF
-source /etc/profile
-echo "系统环境变量配置完成,请重新连接终端,而后再次运行此脚本"
-fi
+# if ! $(env|grep EASYRSA_VARS_FILE > /dev/null);then
+# echo "缺失系统环境变量,现重新配置系统环境变量"
+# cat >> /etc/profile << EOF
+# #from /start_soft.sh file for easyrsa
+# export OPENVPN="/etc/openvpn"
+# export EASYRSA="/usr/share/easy-rsa"
+# export EASYRSA_PKI="${OPENVPN}/pki"
+# export EASYRSA_VARS_FILE="${OPENVPN}/vars"
+# # Prevents refused client connection because of an expired CRL
+# export EASYRSA_CRL_DAYS="3650"
+# EOF
+# source /etc/profile
+# echo "系统环境变量配置完成,请重新连接终端,而后再次运行此脚本"
+# fi
+
 # if [[ -f /etc/openvpn/openvpn.conf ]];then
 #   echo 1 > /proc/sys/net/ipv4/ip_forward
 #   /usr/sbin/openvpn --config /etc/openvpn/openvpn.conf --client-config-dir /etc/openvpn/ccd --crl-verify /etc/openvpn/crl.pem
@@ -184,7 +185,8 @@ fi
 }
 ########### End Script for openvpn ############
 
-run_squid
+
 run_frpc
 run_openvpn
+run_squid
 run_sshd
