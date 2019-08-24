@@ -61,7 +61,7 @@ data:
 
     [range:openvpn hostname_in_docker]
     type = tcp
-    local_ip = 127.0.0.1
+    local_ip = open
     local_port = 1194
     remote_port = 0
     use_encryption = false
@@ -69,7 +69,7 @@ data:
 
     [range:openvpn hostname_in_docker]
     type = udp
-    local_ip = 127.0.0.1
+    local_ip = open
     local_port = 1194
     remote_port = 0
     use_encryption = false
@@ -77,7 +77,7 @@ data:
 
     [range:squid hostname_in_docker]
     type = tcp
-    local_ip = 127.0.0.1
+    local_ip = squid
     local_port = 3128
     remote_port = 0
     use_encryption = false
@@ -116,13 +116,19 @@ spec:
         volumeMounts:
         - mountPath: /etc/frp-backup/
           name: configmap-ofss-config-frpc
+        - mountPath: /etc/frp
+          name: hostpath-frp
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       volumes:
-      - configMap:
+      - name: configmap-ofss-config-frpc
+        configMap:
           defaultMode: 420
           name: ofss-config-frpc
-        name: configmap-ofss-config-frpc
+      - name: hostpath-frp
+        hostPath:
+          path: /data/tools/frp
+          type: ''
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
