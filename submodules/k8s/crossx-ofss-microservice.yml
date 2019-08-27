@@ -2,6 +2,96 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
+  name: ofss-config-squid
+  namespace: kube-system
+data:
+  squid.conf: |-
+    auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/password
+    auth_param basic realm proxy
+    acl authenticated proxy_auth REQUIRED
+
+    acl localnet src 10.0.0.0/8     # RFC1918 possible internal network
+    acl localnet src 172.16.0.0/12  # RFC1918 possible internal network
+    acl localnet src 192.168.0.0/16 # RFC1918 possible internal network
+    acl localnet src fc00::/7       # RFC 4193 local private network range
+    acl localnet src fe80::/10      # RFC 4291 link-local (directly plugged) machines
+
+    acl SSL_ports port 443
+    acl Safe_ports port 80          # http
+    acl Safe_ports port 21          # ftp
+    acl Safe_ports port 443         # https
+    acl Safe_ports port 70          # gopher
+    acl Safe_ports port 210         # wais
+    acl Safe_ports port 1025-65535  # unregistered ports
+    acl Safe_ports port 280         # http-mgmt
+    acl Safe_ports port 488         # gss-http
+    acl Safe_ports port 591         # filemaker
+    acl Safe_ports port 777         # multiling http
+    acl CONNECT method CONNECT
+
+    acl dce-k8s  dst  10.25.10.21/32
+    acl dcs-frontend-k8s  dst  10.25.10.12/32
+    acl dcs-backend-k8s  dst  10.25.10.11/32
+    acl domain-dao  dstdomain  .daocloud.io
+
+    acl work-time time MTWHFAS 8:30-23:30
+
+    #http_access deny  !work-time
+
+    #注意此处必须是'!',否则用户登录后,后面的限制都将无效
+    http_access allow !authenticated
+
+
+    http_access allow  dce-k8s
+    http_access allow  dcs-frontend-k8s
+    http_access allow  dcs-backend-k8s
+    http_access allow  domain-dao
+
+    #squid我是放在反向代理后面的,所有请求都是来自同局域网的,所以这里就注释吧
+    #http_access allow localhost manager
+    #http_access allow localnet
+    #http_access allow localhost
+
+
+    # 下面是deny部分
+    #http_access deny manager
+    http_access deny !Safe_ports
+    http_access deny CONNECT !SSL_ports
+
+    #http_access deny to_localhost
+
+    #最后一行必须是deny all
+    http_access deny all
+
+    # Squid normally listens to port 3128
+    http_port 3128
+
+    # Squid normally listens to port 4128 for ssl bump
+    http_port 4128 ssl-bump generate-host-certificates=on dynamic_cert_mem_cache_size=4MB cert=/etc/squid-cert/private.pem key=/etc/squid-cert/private.pem
+    ssl_bump server-first all
+    always_direct allow all
+
+    # Uncomment and adjust the following to add a disk cache directory.
+    cache_dir ufs /var/cache/squid 100 16 256
+
+    # Leave coredumps in the first cache dir
+    coredump_dir /var/cache/squid
+
+    #
+    # Add any of your own refresh_pattern entries above these.
+    #
+    refresh_pattern ^ftp:   1440  20% 10080
+    refresh_pattern ^gopher:  1440  0%  1440
+    refresh_pattern -i (/cgi-bin/|\?) 0 0%  0
+    refresh_pattern .   30  20% 4320 reload-into-ims
+
+    range_offset_limit 200 MB
+    maximum_object_size 200 MB
+    quick_abort_min -1
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
   name: ofss-config-env
   namespace: kube-system
 data:
@@ -84,19 +174,20 @@ data:
     use_compression = false
 
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    deployment.kubernetes.io/revision: "8"
   labels:
     dce.daocloud.io/app: forbusiness
   name: frpc
 spec:
+  selector:
+    matchLabels:
+      dce.daocloud.io/app: forbusiness
   template:
     metadata:
       labels:
-        dce.daocloud.io/app: forbusiness
+        app: frpc
       name: frpc
     spec:
       containers:
@@ -130,25 +221,22 @@ spec:
           path: /data/tools/frp
           type: ''
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
     deployment.kubernetes.io/revision: "8"
   labels:
     dce.daocloud.io/app: forbusiness
-    dce.daocloud.io/component: nps
   name: nps
 spec:
   selector:
     matchLabels:
-      dce.daocloud.io/component: nps
+      dce.daocloud.io/app: forbusiness
   template:
     metadata:
-      creationTimestamp: null
       labels:
-        dce.daocloud.io/app: forbusiness
-        dce.daocloud.io/component: nps
+        app: nps
       name: nps
     spec:
       containers:
@@ -169,7 +257,7 @@ spec:
             memory: "209715200"
       dnsPolicy: ClusterFirst
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
@@ -178,10 +266,13 @@ metadata:
     dce.daocloud.io/app: forbusiness
   name: open
 spec:
+  selector:
+    matchLabels:
+      dce.daocloud.io/app: forbusiness
   template:
     metadata:
       labels:
-        dce.daocloud.io/app: forbusiness
+        app: open
       name: open
     spec:
       affinity:
@@ -219,20 +310,21 @@ spec:
           type: ""
         name: hostpath-open
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    deployment.kubernetes.io/revision: "7"
   labels:
     dce.daocloud.io/app: forbusiness
   name: squid
 spec:
+  selector:
+    matchLabels:
+      dce.daocloud.io/app: forbusiness
   template:
     metadata:
       creationTimestamp: null
       labels:
-        dce.daocloud.io/app: forbusiness
+        app: squid
       name: squid
     spec:
       containers:
@@ -246,14 +338,30 @@ spec:
           requests:
             cpu: "0"
             memory: "209715200"
+        volumeMounts:
+          - name: configmap-ofss-config-squid
+            mountPath: /etc/squid/squid.conf
+            subPath: squid.conf
+          - name: hostpath-squid-password
+            mountPath: /etc/squid/password
+      volumes:
+        - name: configmap-ofss-config-squid
+          configMap:
+            name: ofss-config-squid
+            items:
+              - key: squid.conf
+                path: squid.conf
+            defaultMode: 420
+        - name: hostpath-squid-password
+          hostPath:
+            path: /data/tools/squid/password
+            type: FileOrCreate
       dnsConfig: {}
       dnsPolicy: ClusterFirst
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    io.daocloud.dce.serviceSelectorType: service
   labels:
     dce.daocloud.io/app: forbusiness
   name: frpc
@@ -264,15 +372,13 @@ spec:
     protocol: TCP
     targetPort: 1194
   selector:
-    dce.daocloud.io/component: frpc
+    app: frpc
   sessionAffinity: None
   type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    io.daocloud.dce.serviceSelectorType: service
   labels:
     dce.daocloud.io/app: forbusiness
   name: open
@@ -283,14 +389,12 @@ spec:
     protocol: TCP
     targetPort: 1194
   selector:
-    dce.daocloud.io/component: open
+    app: open
   type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    io.daocloud.dce.serviceSelectorType: service
   labels:
     dce.daocloud.io/app: forbusiness
   name: squid
@@ -305,5 +409,21 @@ spec:
     protocol: TCP
     targetPort: 4128
   selector:
-    dce.daocloud.io/component: squid
+    app: squid
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    dce.daocloud.io/app: forbusiness
+  name: nps
+spec:
+  ports:
+  - name: nps-9100
+    port: 9100
+    protocol: TCP
+    targetPort: 9100
+  selector:
+    app: nps
   type: ClusterIP
