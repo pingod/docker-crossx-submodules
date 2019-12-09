@@ -4,7 +4,7 @@ NAMESPACE=sourcegarden
 NAME=openvpn-fss
 FULLNAME=registry.cn-hangzhou.aliyuncs.com/${NAMESPACE}/${NAME}
 #FULLNAME=$(NAMESPACE)/$(NAME)
-DOCKERFILE=./frpc/Dockerfile
+DOCKERFILE=./submodules/frpc/Dockerfile
 VERSION=$2
 
 
