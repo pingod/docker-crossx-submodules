@@ -12,4 +12,4 @@ jobs:
     - uses: actions/checkout@master
     - name: Build the Docker image
 #      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
-      run: chmod +x ./submodules/build.sh && ./submodules/build.sh build v1.2
+      run: chmod +x ./submodules/build.sh && bash -x ./submodules/build.sh build v1.2
