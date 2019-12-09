@@ -12,7 +12,7 @@ jobs:
     - uses: actions/checkout@master
     - name: Build the Docker image
       run: |
-        cd submodules
+        cd submodules && du -sh * && ls -l && ls -l ./frpc
         docker build --network host -t registry.cn-hangzhou.aliyuncs.com/sourcegarden/openvpn-fss:v0.4 --rm -f ./Dockerfile .
 
     # - name: Publish to Registry
