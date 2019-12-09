@@ -11,6 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
       with:
+        ref: master
         submodules: true
         token: ${{ secrets.REPO_SCOPED_TOKEN }}
     - name: Build the Docker image
