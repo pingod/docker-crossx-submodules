@@ -40,7 +40,7 @@ clean(){
 
 build(){
 	clean ${FULLNAME} ${VERSION}
-	docker build -t ${FULLNAME}:${VERSION} --rm -f ${DOCKERFILE} .
+	docker build --network host -t ${FULLNAME}:${VERSION} --rm -f ${DOCKERFILE} .
 }
 
 tag_latest(){
