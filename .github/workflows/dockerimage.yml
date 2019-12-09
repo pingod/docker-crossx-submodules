@@ -11,7 +11,7 @@ jobs:
     steps:
     - name: Fix up git URLs
       run: echo -e '[url "https://github.com/"]\n  insteadOf = "git@github.com:"' >> ~/.gitconfig
-    - uses: actions/checkout@v1
+    - uses: snickerbockers/submodules-init@v4
       with:
         ref: master
         token: ${{ secrets.REPO_SCOPED_TOKEN }}
