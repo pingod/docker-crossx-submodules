@@ -40,7 +40,7 @@ clean(){
 
 build(){
 	clean ${FULLNAME} ${VERSION}
-	docker build -t ${FULLNAME}:${VERSION} --rm -f ./${DOCKERFILE} .
+	docker build -t ${FULLNAME}:${VERSION} --rm -f ./${DOCKERFILE} ./submodules/frpc/
 }
 
 tag_latest(){
