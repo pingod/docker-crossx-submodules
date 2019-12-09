@@ -6,7 +6,8 @@ FULLNAME=registry.cn-hangzhou.aliyuncs.com/${NAMESPACE}/${NAME}
 #FULLNAME=$(NAMESPACE)/$(NAME)
 DOCKERFILE=./Dockerfile
 VERSION=$2
-
+pwd
+ls -l
 
 all(){
 	usage
