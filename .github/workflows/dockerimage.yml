@@ -1,0 +1,15 @@
+name: Docker Image CI (master)[openvpn-fss]
+
+on: [push]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@master
+    - name: Build the Docker image
+#      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: ./build.sh build v1.2
