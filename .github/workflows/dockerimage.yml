@@ -9,11 +9,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2-beta
-      with:
-        ref: master
-        submodules: true
-        token: ${{ secrets.REPO_SCOPED_TOKEN }}
+    - uses: textbook/git-checkout-submodule-action@2.0.0
+      # with:
+      #   ref: master
+      #   submodules: true
+      #   token: ${{ secrets.REPO_SCOPED_TOKEN }}
     - name: Build the Docker image
       run: cd ./submodules && chmod +x ./build.sh && ./build.sh build v0.4
 
