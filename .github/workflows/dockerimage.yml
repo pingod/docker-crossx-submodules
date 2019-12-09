@@ -9,8 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - uses: actions/checkout@master
     - name: Build the Docker image
-      uses: actions/checkout@master
       run: cd ./submodules && chmod +x ./build.sh && ./build.sh build v0.4
       with:
         submodules: true
