@@ -4,7 +4,7 @@ NAMESPACE=sourcegarden
 NAME=openvpn-fss
 FULLNAME=registry.cn-hangzhou.aliyuncs.com/${NAMESPACE}/${NAME}
 #FULLNAME=$(NAMESPACE)/$(NAME)
-DOCKERFILE=Dockerfile
+DOCKERFILE=./submodules/frpc/Dockerfile
 VERSION=$2
 
 
@@ -40,7 +40,7 @@ clean(){
 
 build(){
 	clean ${FULLNAME} ${VERSION}
-	docker build -t ${FULLNAME}:${VERSION} --rm -f ./${DOCKERFILE} ./submodules/frpc/
+	docker build -t ${FULLNAME}:${VERSION} --rm -f ${DOCKERFILE} .
 }
 
 tag_latest(){
