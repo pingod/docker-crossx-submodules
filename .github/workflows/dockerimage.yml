@@ -15,13 +15,13 @@ jobs:
         cd submodules
         docker build --network host -t registry.cn-hangzhou.aliyuncs.com/sourcegarden/openvpn-fss:v0.4 --rm -f ./Dockerfile .
 
-    - name: Publish to Registry
-    - uses: azure/docker-login@master
-      with:
-        login-server: registry.cn-hangzhou.aliyuncs.com
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-      run: cd ./submodules && chmod +x ./build.sh && ./build.sh release
+    # - name: Publish to Registry
+    # - uses: azure/docker-login@master
+    #   with:
+    #     login-server: registry.cn-hangzhou.aliyuncs.com
+    #     username: ${{ secrets.DOCKER_USERNAME }}
+    #     password: ${{ secrets.DOCKER_PASSWORD }}
+    #   run: cd ./submodules && chmod +x ./build.sh && ./build.sh release
       # uses: elgohr/Publish-Docker-Github-Action@master
       # with:
       #   name: registry.cn-hangzhou.aliyuncs.com/sourcegarden
