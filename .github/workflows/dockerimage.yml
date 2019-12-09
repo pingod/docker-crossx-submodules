@@ -10,10 +10,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@master
-    - name: Build the Docker image
-      run: cd ./submodules && chmod +x ./build.sh && ./build.sh build v0.4
       with:
         submodules: true
+    - name: Build the Docker image
+      run: cd ./submodules && chmod +x ./build.sh && ./build.sh build v0.4
+
 
     # - name: Publish to Registry
     # - uses: azure/docker-login@master
