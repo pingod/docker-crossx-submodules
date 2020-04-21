@@ -23,7 +23,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Checkout submodules
       uses: textbook/git-checkout-submodule-action@2.1.1
-
+      with:
+        remote: true
     # build docker images
     - name: Build the Docker image
       run: cd ./submodules && chmod +x ./build.sh && ./build.sh build v0.4
