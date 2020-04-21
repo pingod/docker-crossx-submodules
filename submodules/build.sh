@@ -6,8 +6,7 @@ FULLNAME=registry.cn-hangzhou.aliyuncs.com/${NAMESPACE}/${NAME}
 #FULLNAME=$(NAMESPACE)/$(NAME)
 DOCKERFILE=./Dockerfile
 VERSION=$2
-pwd
-ls -l
+
 
 all(){
 	usage
@@ -41,7 +40,7 @@ clean(){
 
 build(){
 	clean ${FULLNAME} ${VERSION}
-	ls 
+	ls -l frpc
 	pwd
 	docker build --network host -t ${FULLNAME}:${VERSION} --rm -f ${DOCKERFILE} .
 }
