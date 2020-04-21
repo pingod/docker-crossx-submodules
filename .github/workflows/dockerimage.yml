@@ -1,6 +1,6 @@
 name: Docker Image CI (master)[openvpn-fss]
 
-on: [push]
+#on: [push]
 
 jobs:
 
