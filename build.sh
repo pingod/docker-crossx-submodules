@@ -4,7 +4,7 @@ NAMESPACE=sourcegarden
 NAME=openvpn-fss
 FULLNAME=registry.cn-hangzhou.aliyuncs.com/${NAMESPACE}/${NAME}
 #FULLNAME=$(NAMESPACE)/$(NAME)
-DOCKERFILE=Dockerfile
+DOCKERFILE=./Dockerfile
 VERSION=$2
 
 
@@ -40,7 +40,9 @@ clean(){
 
 build(){
 	clean ${FULLNAME} ${VERSION}
-	docker build -t ${FULLNAME}:${VERSION} --rm -f ./${DOCKERFILE} .
+	ls -l frpc
+	pwd
+	docker build --network host -t ${FULLNAME}:${VERSION} --rm -f ${DOCKERFILE} .
 }
 
 tag_latest(){
@@ -68,7 +70,7 @@ save(){
 
 run(){
 	echo "Docker IPAddress is:" 
-	docker inspect --format '{{.NetworkSettings.IPAddress}}' `docker run --name ofss --privileged  -e "server_addr=bbs.itaojin.me" -e "hostname_in_docker=local-mac-test"  -e "ip_out_docker=192.168.2.97" --restart=always -d ${FULLNAME}:${VERSION}`
+	docker inspect --format '{{.NetworkSettings.IPAddress}}' `docker run --name open --privileged  -e "server_addr=bbs.itaojin.me" -e "hostname_in_docker=local-mac-test"  -e "ip_out_docker=192.168.216.1" --restart=always -d ${FULLNAME}:${VERSION}`
 }
 
 usage(){
