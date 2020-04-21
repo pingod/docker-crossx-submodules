@@ -10,21 +10,21 @@
   此容器包含：
 
     OpenVPN ： OpenVPN的技术核心是虚拟网卡，其次是SSL协议实现。
-
+    
     FRP： FRP 内网穿透客户端
-
+    
     SSHD： 容器内部sshd服务，主要用来避免企业内部操作审计
-
+    
     Squid： 透明代理
 
   使用此容器注意事项：
 
     使用此容器的前提是你已经在公网环境搭建了FRP的服务端
-
+    
     容器运行后需要去frp的server端获取服务端暴露出来的端口，或者在客户端使用frpc status -c xx.conf 查看暴露的端口
     
     容器启动后默认会自动生成openvpn的PKI目录，如果你打算使用自己的PKI目录，那么在容器启动的时候将openvpn所需要的配置文件挂载到/etc/openvpn路径下
-   
+
 
 ### What is openvpn Server?
 
@@ -175,19 +175,20 @@ Squid 默认密码为heaven/echoinheaven
 
 
 ```bash
-docker run --restart=always --name open --privileged  -v /demo/openvpn:/etc/openvpn -v  /var/run/docker.sock:/var/run/docker.sock -e "server_addr=123.57.3.123" -e "hostname_in_docker=local-demo-test"  -e "ip_out_docker=192.168.1.27" --restart=always -d registry.cn-hangzhou.aliyuncs.com/sourcegarden/openvpn-fss:v0.1
+docker run --restart=always --name open --privileged  -v /demo/openvpn:/etc/openvpn -v  /var/run/docker.sock:/var/run/docker.sock -e "server_addr=123.57.3.123" -e "hostname_in_docker=local-demo-test"  -e "ip_out_docker=192.168.1.27" --restart=always -d registry.cn-hangzhou.aliyuncs.com/sourcegarden/openvpn-fss:v0.4
 
 ```
 
-
-#### Openvpn operations
+### Openvpn operations
 
 ##### Add user
 
-# 需要执行下面2个命令才能得到客户端配置文件
-docker exec -it open easyrsa build-client-full daocloud-boe nopass
+**需要执行下面2个命令才能得到客户端配置文件**
 
+```
+docker exec -it open easyrsa build-client-full daocloud-boe nopass
 docker exec -it open ovpn_getclient daocloud-boe > ${OPENVPN}/daocloud-boe.ovpn
+```
 
 
 
