@@ -8,8 +8,8 @@ name: Docker Image CI (master)[openvpn-fss]
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  # pull_request:
+  #   branches: [ master ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -20,25 +20,19 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - name: Fix up git URLs
-      run: echo -e '[url "https://github.com/"]\n  insteadOf = "git@github.com:"' >> ~/.gitconfig
+    # - name: Fix up git URLs
+    #   run: echo -e '[url "https://github.com/"]\n  insteadOf = "git@github.com:"' >> ~/.gitconfig
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
       with:
         ref: master
-        submodules: ture
+        submodules: recursive
     # build docker images
     - name: Build the Docker image
       run: |
         cd ./submodules
         chmod +x ./build.sh
         ./build.sh build v0.4
-
-    # Runs a set of commands using the runners shell
-    - name: Run a multi-line script
-      run: |
-        echo Add other actions to build,
-        echo test, and deploy your project.
 
     # - name: Publish to Registry
     # - uses: azure/docker-login@master
