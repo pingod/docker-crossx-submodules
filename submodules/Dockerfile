@@ -40,6 +40,7 @@ RUN chmod a+x /usr/local/bin/*
 ADD ./openvpn/alpine-openvpn/otp/openvpn /etc/pam.d/
 
 COPY start_soft.sh /start_soft.sh
+RUN chmod +x /start_soft.sh
 
 # Internally uses port 1194/udp, remap using `docker run -p 443:1194/tcp`
 EXPOSE 1194/udp
