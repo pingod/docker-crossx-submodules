@@ -41,6 +41,8 @@ clean(){
 
 build(){
 	clean ${FULLNAME} ${VERSION}
+	ls 
+	pwd
 	docker build --network host -t ${FULLNAME}:${VERSION} --rm -f ${DOCKERFILE} .
 }
 
