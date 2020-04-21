@@ -16,3 +16,6 @@
 [submodule "submodules/nps"]
 	path = submodules/nps
 	url = git@github.com:pingod/docker-nps.git
+[submodule "submodules/frpc"]
+	path = submodules/frpc
+	url = https://github.com/pingod/frpc.git
