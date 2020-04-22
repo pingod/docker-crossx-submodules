@@ -194,7 +194,7 @@ remote_port = 0
 use_encryption = false
 use_compression = false
 
-[range:proxy ${hostname_in_docker} ]
+[range:squid ${hostname_in_docker} ]
 type = tcp
 local_ip = squid
 local_port = 3128
