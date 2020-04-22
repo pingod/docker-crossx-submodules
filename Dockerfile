@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:3.9
 ENV TZ=Asia/Chongqing
 # ocserv var
 ENV OC_VERSION=0.12.1 
