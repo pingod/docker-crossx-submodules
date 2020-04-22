@@ -1,0 +1,46 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Docker Image CI [openvpn-fss]
+
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ openvpn-fss ]
+  # pull_request:
+  #   branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # login docker registry
+    - name: login to Registry
+      uses: azure/docker-login@v1
+      with:
+        login-server: registry.cn-hangzhou.aliyuncs.com
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+    # - name: Fix up git URLs
+    #   run: echo -e '[url "https://github.com/"]\n  insteadOf = "git@github.com:"' >> ~/.gitconfig
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2
+      with:
+        ref: master
+        clean: true
+        submodules: recursive
+    # build docker images
+    - name: Build the Docker image
+      run: |
+        cd ./submodules
+        chmod +x ./build.sh
+        ./build.sh build v0.4
+    # push docker images
+    - name: push to Registry
+      run: cd ./submodules && chmod +x ./build.sh && ./build.sh release
