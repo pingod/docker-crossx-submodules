@@ -8,7 +8,7 @@ name: Docker Image CI
 on:
   push:
     branches:
-      - 'openvpn\-fss'
+      - 'mona/openvpn-fss'
   # pull_request:
   #   branches: master 
 
