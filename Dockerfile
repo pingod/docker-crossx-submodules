@@ -1,4 +1,4 @@
-FROM alpine:3.8
+FROM alpine:3.9
 ENV TZ=Asia/Chongqing
 
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing/" >> /etc/apk/repositories \
