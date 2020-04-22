@@ -39,9 +39,9 @@ jobs:
     # build docker images
     - name: Build the Docker image
       run: |
-        cd ./submodules
         chmod +x ./build.sh
         ./build.sh build v0.4
     # push docker images
     - name: push to Registry
-      run: cd ./submodules && chmod +x ./build.sh && ./build.sh release
+      run: |
+        ./build.sh release
