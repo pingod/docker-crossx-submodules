@@ -7,9 +7,9 @@ name: Docker Image CI-01
 # events but only for the master branch
 on:
   push:
-    branches: "openvpn-fss"
-  # pull_request:
-  #   branches: master 
+    branches: "master"
+  pull_request:
+    branches: "openvpn-fss" 
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
