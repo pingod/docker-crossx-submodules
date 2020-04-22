@@ -1,15 +1,16 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Docker Image CI [openvpn-fss]
+name: Docker Image CI
 
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on:
   push:
-    branches: [ openvpn-fss ]
+    branches: 
+      - master
   # pull_request:
-  #   branches: [ master ]
+  #   branches: master
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -32,15 +33,15 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
       with:
-        ref: master
+        ref: openvpn-fss
         clean: true
         submodules: recursive
     # build docker images
     - name: Build the Docker image
       run: |
-        cd ./submodules
         chmod +x ./build.sh
         ./build.sh build v0.4
     # push docker images
     - name: push to Registry
-      run: cd ./submodules && chmod +x ./build.sh && ./build.sh release
+      run: |
+        ./build.sh release
