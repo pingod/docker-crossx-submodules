@@ -137,15 +137,88 @@ if [ -z "$ssh_port_out_docker" ]; then
     ssh_port_out_docker=22
 fi
 
-export config_file_frpc=/etc/frp/frpc-lite.ini
-sudo sed -i 's/server_addr = 0.0.0.0/server_addr = '$server_addr'/g' ${config_file_frpc}
-sudo sed -i 's/server_port = 7100/server_port = '$server_port'/g' ${config_file_frpc}
-sudo sed -i 's/privilege_token = 12345678/privilege_token = '$privilege_token'/g' ${config_file_frpc}
-sudo sed -i 's/login_fail_exit = true/login_fail_exit = '$login_fail_exit'/g' ${config_file_frpc}
-sudo sed -i 's/hostname_in_docker/'$hostname_in_docker'/g' ${config_file_frpc}
-sudo sed -i 's/ip_out_docker/'$ip_out_docker'/g' ${config_file_frpc}
-sudo sed -i 's/ssh_port_out_docker/'$ssh_port_out_docker'/g' ${config_file_frpc}
+export config_file_frpc=/etc/frp/frpc-docker.ini
 
+if [[ ! -f ${config_file_frpc} ]];then
+mkdir -p $(dirname ${config_file_frpc})
+cat > ${config_file_frpc} << EOF
+[common]
+server_addr = ${server_addr}
+server_port = ${server_port}
+log_file = console
+log_level = info
+log_max_days = 3
+privilege_token = ${privilege_token}
+
+admin_addr = 127.0.0.1
+admin_port = 7400
+admin_user = admin
+admin_pwd = admin
+
+pool_count = 5
+tcp_mux = true
+#user = your_name
+login_fail_exit = ${login_fail_exit}
+protocol = tcp
+
+[range:sshindocker ${hostname_in_docker} ]
+type = tcp
+local_ip = 127.0.0.1
+local_port = 22
+remote_port = 0
+use_encryption = true
+use_compression = true
+
+[range:sshoutdocker ${hostname_in_docker} ]
+type = tcp
+local_ip = ${ip_out_docker}
+local_port = ${ssh_port_out_docker}
+remote_port = 0
+use_encryption = false
+use_compression = false
+
+
+[range:ovn-t ${hostname_in_docker} ]
+type = tcp
+local_ip = open
+local_port = 1194
+remote_port = 0
+use_encryption = false
+use_compression = false
+
+[range:ovn-u ${hostname_in_docker} ]
+type = udp
+local_ip = open
+local_port = 1194
+remote_port = 0
+use_encryption = false
+use_compression = false
+
+[range:proxy ${hostname_in_docker} ]
+type = tcp
+local_ip = squid
+local_port = 3128
+remote_port = 0
+use_encryption = false
+use_compression = false
+EOF
+
+else
+	echo "配置文件已经存在,将直接使用现有配置文件"
+fi
+
+# sudo sed -i 's/server_addr = 0.0.0.0/server_addr = '$server_addr'/g' ${config_file_frpc}
+# sudo sed -i 's/server_port = 7100/server_port = '$server_port'/g' ${config_file_frpc}
+# sudo sed -i 's/privilege_token = 12345678/privilege_token = '$privilege_token'/g' ${config_file_frpc}
+# sudo sed -i 's/login_fail_exit = true/login_fail_exit = '$login_fail_exit'/g' ${config_file_frpc}
+# sudo sed -i 's/hostname_in_docker/'$hostname_in_docker'/g' ${config_file_frpc}
+# sudo sed -i 's/ip_out_docker/'$ip_out_docker'/g' ${config_file_frpc}
+# sudo sed -i 's/ssh_port_out_docker/'$ssh_port_out_docker'/g' ${config_file_frpc}
+#通过环境变量来判断容器是否运行在k8s中,其中open和squid是k8s中的service名称,具体需要编排来定
+if [ -z "$KUBERNETES_SERVICE_HOST" ];then
+	sed -i 's/open/127.0.0.1/g' ${config_file_frpc}
+	sed -i 's/squid/127.0.0.1/g' ${config_file_frpc}
+fi
 sudo nohup /usr/bin/frpc -c ${config_file_frpc}  &
 }
 ################ End script for FRP ##############
