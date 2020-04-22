@@ -1,0 +1,9 @@
+[submodule "submodules/wireguard"]
+	path = submodules/wireguard
+	url = https://github.com/pingod/docker-wireguard
+[submodule "submodules/squid"]
+	path = submodules/squid
+	url = git@github.com:pingod/squid-alpine-ssl.git
+[submodule "submodules/frpc"]
+	path = submodules/frpc
+	url = git@github.com:pingod/frpc.git
