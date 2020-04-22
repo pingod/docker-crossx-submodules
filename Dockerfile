@@ -10,8 +10,8 @@ RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing/" >> /etc/apk/reposi
 	&& rm -rf /tmp/* /var/tmp/* /var/cache/apk/* /var/cache/distfiles/*
 
 # config Frp (frp_0.16.0_linux_386.tar.gz)
-COPY ./submodules/frp/frpc /usr/bin/frpc
-COPY ./submodules/frp/frpc_lite.ini /etc/frp/frpc_lite.ini
+COPY ./submodules/frpc/frpc /usr/bin/frpc
+COPY ./submodules/frpc/frpc_lite.ini /etc/frpc/frpc_lite.ini
 RUN chmod a+x /usr/bin/frpc
 
 # config squid

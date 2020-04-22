@@ -137,7 +137,7 @@ if [ -z "$ssh_port_out_docker" ]; then
     ssh_port_out_docker=22
 fi
 
-export config_file_frpc=/etc/frp/frpc-docker.ini
+export config_file_frpc=/etc/frpc/frpc-docker.ini
 
 if [[ ! -f ${config_file_frpc} ]];then
 mkdir -p $(dirname ${config_file_frpc})
