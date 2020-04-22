@@ -1,12 +1,6 @@
-[submodule "submodules/squid"]
-	path = submodules/squid
-	url = git@github.com:pingod/squid-alpine-ssl.git
 [submodule "submodules/ocserv"]
 	path = submodules/ocserv
 	url = git@github.com:pingod/docker-ocserv.git
-[submodule "submodules/openvpn"]
-	path = submodules/openvpn
-	url = git@github.com:pingod/docker-openvpn.git
 [submodule "submodules/wireguard"]
 	path = submodules/wireguard
 	url = git@github.com:pingod/docker-wireguard.git
@@ -16,6 +10,3 @@
 [submodule "submodules/nps"]
 	path = submodules/nps
 	url = git@github.com:pingod/docker-nps.git
-[submodule "submodules/frpc"]
-	path = submodules/frpc
-	url = https://github.com/pingod/frpc.git
