@@ -1,0 +1,6 @@
+[submodule "submodules/frpc"]
+	path = submodules/frpc
+	url = git@github.com:pingod/frpc.git
+[submodule "submodules/squid"]
+	path = submodules/squid
+	url = git@github.com:pingod/squid-alpine-ssl.git
