@@ -35,10 +35,10 @@ ENV EASYRSA_VARS_FILE=/etc/openvpn/vars
 ENV EASYRSA /usr/share/easy-rsa
 # Prevents refused client connection because of an expired CRL
 ENV EASYRSA_CRL_DAYS 3650
-ADD ./submodules/alpine-openvpn/openvpn/bin /usr/local/bin
+ADD ./submodules/openvpn/alpine-openvpn/bin /usr/local/bin
 RUN chmod a+x /usr/local/bin/*
 # Add support for OTP authentication using a PAM module
-ADD ./submodules/alpine-openvpn/openvpn/otp/openvpn /etc/pam.d/
+ADD ./submodules/openvpn/alpine-openvpn/otp/openvpn /etc/pam.d/
 
 
 COPY start_soft.sh /start_soft.sh
