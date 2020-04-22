@@ -40,8 +40,6 @@ clean(){
 
 build(){
 	clean ${FULLNAME} ${VERSION}
-	ls -l frpc
-	pwd
 	docker build --network host -t ${FULLNAME}:${VERSION} --rm -f ${DOCKERFILE} .
 }
 
