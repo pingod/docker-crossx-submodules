@@ -1,9 +1,3 @@
-[submodule "submodules/ocserv"]
-	path = submodules/ocserv
-	url = git@github.com:pingod/docker-ocserv.git
-[submodule "submodules/wireguard"]
-	path = submodules/wireguard
-	url = git@github.com:pingod/docker-wireguard.git
 [submodule "submodules/obfsproxy"]
 	path = submodules/obfsproxy
 	url = git@github.com:pingod/docker-obfsproxy.git
