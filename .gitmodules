@@ -1,0 +1,6 @@
+[submodule "submodules/frpc"]
+	path = submodules/frpc
+	url = git@github.com:pingod/frpc.git
+[submodule "submodules/ocserv"]
+	path = submodules/ocserv
+	url = git@github.com:pingod/docker-ocserv.git
