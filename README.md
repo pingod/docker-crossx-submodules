@@ -10,7 +10,6 @@
   此容器包含：
 
     OpenVPN ： OpenVPN的技术核心是虚拟网卡，其次是SSL协议实现。
-    
     FRP： FRP 内网穿透客户端
     
     SSHD： 容器内部sshd服务，主要用来避免企业内部操作审计
