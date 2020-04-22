@@ -32,7 +32,7 @@ jobs:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
       with:
-        ref: master
+        ref: openvpn-fss
         clean: true
         submodules: recursive
     # build docker images
